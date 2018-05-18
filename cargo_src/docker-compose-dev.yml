@@ -1,0 +1,46 @@
+version: '3.4'
+
+services:
+
+  cargo_ui:
+    container_name: cargo_ui
+    build:
+      context: ./services/cargo_ui
+      dockerfile: Dockerfile-dev
+      args:
+        - NODE_ENV=development
+        - REACT_APP_SERVICE_URL=${REACT_APP_SERVICE_URL}
+        - CHOKIDAR_USEPOLLING=true
+    ports:
+      - 3007:3000
+    depends_on:
+      - cargo_server
+    links:
+      - cargo_server
+  
+  cargo_server:
+    container_name: cargo_server
+    build:
+      context: ./services/cargo_server
+      dockerfile: Dockerfile-dev
+    volumes:
+      - ./services/cargo_server:/usr/src/app
+    expose:
+      - 5000
+    environment: 
+      - FLASK_DEBUG=1 
+      - APP_SETTINGS=project.config.DevelopmentConfig 
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile-dev
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - cargo_server
+      - cargo_ui
+
+   
