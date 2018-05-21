@@ -41,3 +41,19 @@ services:
     depends_on:
       - cargo_server
       - cargo_ui
+  
+  # cadvisor:
+  #   image: google/cadvisor:v0.28.3
+  #   container_name: cadvisor
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:rw
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker/:/var/lib/docker:ro
+  #     - /cgroup:/cgroup:ro
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8080:8080
+  #   network_mode: host
+  #   labels:
+  #     org.label-schema.group: "monitoring"

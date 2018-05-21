@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from elasticsearch import Elasticsearch
 
 main_blueprint = Blueprint('main', __name__)
 
 def get_connection(url):
-    return Elasticsearch(url, http_compress=True)
+    if not hasattr(g, url):
+        g.es = Elasticsearch(url, http_compress=True)
+    return g.es
 
 @main_blueprint.route('/cargo/connect', methods=["POST"])
 def connect_elastic():
@@ -22,8 +24,7 @@ def connect_elastic():
         response_object = {
             'status':'fail',
             'message': 'Not Connected',
-            'ping': 'False',
-            
+            'ping': 'False'
         }
     return jsonify(response_object)
   
@@ -51,9 +52,6 @@ def index_list_elastic():
         'data': index_list
     }
     return jsonify(response_object), 200
-
-
-
 
 @main_blueprint.route('/cargo/ping', methods=["GET"])
 def ping():
