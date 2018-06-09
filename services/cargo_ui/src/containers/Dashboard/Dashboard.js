@@ -48,6 +48,7 @@ class Dashboard extends Component {
 
   state = {
     indexList: [],
+    fields: [],
     url: 'http://172.16.123.1:9200',
     value: null,
     dropdownOpen: new Array(19).fill(false)
@@ -78,10 +79,27 @@ class Dashboard extends Component {
   }
 
   _updateValue(newValue) {
+    let mapping = [];
     console.log(newValue);
 		this.setState({
 			value: newValue
-		});
+    });
+    // axios.post('http://192.168.99.100/cargo/mapping',{ 
+    //   url:this.state.url,
+    //   index: this.state.value
+    // })
+    // .then(res => {
+    //   mapping = res.data.data.map((item) => {
+    //     return item;
+    //   });
+     
+    //   this.setState({
+    //     fields: mapping
+    //   });
+    // })
+    // .catch(error => {
+    //   console.log(error);
+    // }) 
   }
   
   toggle(i) {
@@ -136,7 +154,6 @@ class Dashboard extends Component {
                           multi
                           name="select-index"
                           value={this.state.value}
-                          onChange={this._updateValue}
                           searchable
                           labelKey="name"
                           valueKey="name"
@@ -190,7 +207,7 @@ class Dashboard extends Component {
                       <Select 
                           id="index-select"
                           ref={(ref) => { this.select = ref; }}
-                          options={this.state.indexList}
+                          options={this.state.fields}
                           simpleValue
                           clearable
                           multi
@@ -198,8 +215,8 @@ class Dashboard extends Component {
                           value={this.state.value}
                           onChange={this._updateValue}
                           searchable
-                          labelKey="name"
-                          valueKey="name"
+                          labelKey="field"
+                          valueKey="field"
                         />
             
                       </Col>

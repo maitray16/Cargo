@@ -44,15 +44,21 @@ def index_list_elastic():
 
 @main_blueprint.route('/cargo/mapping', methods=["POST"])
 def get_mapping():
+    field_list = []
     data = request.get_json()
     url = data.get("url")
     index = data.get("index")
     es = get_connection(url)
-    print(es.indices.get_mapping(index=index, doc_type=None))
+    mapping_block = es.indices.get_mapping(index=index, doc_type=None)
+    mappings = mapping_block[index]['mappings']['doc']['properties']
+    for field in mappings.keys():
+        field_list.append(field)
     response_object = {
         'status': 'success',
-        'data': es.indices.get_mapping(index=index, doc_type=None)
+        'data': [{"field" : i} for i in field_list]            
     }
+    return jsonify(response_object), 200
+        
 
 @main_blueprint.route('/cargo/ping', methods=["GET"])
 def ping():
