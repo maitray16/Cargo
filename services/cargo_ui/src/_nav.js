@@ -1,29 +1,17 @@
+import logo from './assets/img/package.png'
 export default {
   items: [
     {
-      name: '',
-      url: '',
-      icon: '',
-      variant: 'back',
-    },
-    {
-      name: '',
-      url: '',
-      icon: '',
-      variant: 'back',
-    },
-    {
       name: 'Swagger Docs',
       url: 'http://coreui.io/pro/react/',
-      icon: 'fa fa-folder-o',
-      variant: 'primary',
-      class: 'mt-auto',
+      icon: 'icon-docs',
+      variant: 'success',
     },
     {
-      name: 'Try CoreUI PRO',
+      name: 'Git Link',
       url: 'http://coreui.io/pro/react/',
-      icon: 'fa fa-github',
-      variant: 'danger',
+      icon: 'icon-social-github',
+      variant: 'success',
     
     },
   ],

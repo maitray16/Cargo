@@ -27,8 +27,7 @@ services:
     expose:
       - 5000
     environment: 
-      - FLASK_DEBUG=1 
-      - APP_SETTINGS=project.config.DevelopmentConfig 
+      - APP_SETTINGS=project.config.ProductionConfig
 
   nginx:
     container_name: nginx

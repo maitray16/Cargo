@@ -8,36 +8,25 @@ def get_connection(url):
         g.es = Elasticsearch(url, http_compress=True)
     return g.es
 
+
 @main_blueprint.route('/cargo/connect', methods=["POST"])
 def connect_elastic():
-    """ API to check connection to Elastic Host """
     data = request.get_json()
     url = data.get("url")
     es = get_connection(url)
-    if es.ping():    
+    if es.ping():   
         response_object = {
-            'status':'success',
-            'message':'Connected',
+            'status': 'success',
+            'message': 'Connected',
             'ping': es.ping()
         }
     else:
         response_object = {
-            'status':'fail',
+            'status': 'fail',
             'message': 'Not Connected',
             'ping': 'False'
         }
     return jsonify(response_object)
-  
-@main_blueprint.route('/cargo/esinfo', methods=["POST"])
-def info_elastic():
-    data = request.get_json()
-    url = data.get("url")
-    es = get_connection(url)
-    response_object = {
-        'status': 'success',
-        'message': es.info()
-    }
-    return jsonify(response_object), 200
 
 @main_blueprint.route('/cargo/indexlist', methods=["POST"])
 def index_list_elastic():
@@ -49,13 +38,25 @@ def index_list_elastic():
         index_list.append(index)
     response_object = {
         'status': 'success',
-        'data': index_list
+        'data': [{"name": i} for i in index_list]
     }
     return jsonify(response_object), 200
+
+@main_blueprint.route('/cargo/mapping', methods=["POST"])
+def get_mapping():
+    data = request.get_json()
+    url = data.get("url")
+    index = data.get("index")
+    es = get_connection(url)
+    print(es.indices.get_mapping(index=index, doc_type=None))
+    response_object = {
+        'status': 'success',
+        'data': es.indices.get_mapping(index=index, doc_type=None)
+    }
 
 @main_blueprint.route('/cargo/ping', methods=["GET"])
 def ping():
     return jsonify({
-    'status':'success',
-    'message':'Pong!!'
+        'status': 'success',
+        'message': 'Pong!!'
     }) 

@@ -9,14 +9,11 @@ const defaultProps = {};
 
 class DefaultFooter extends Component {
   render() {
-
-    // eslint-disable-next-line
     const { children, ...attributes } = this.props;
-
     return (
       <React.Fragment>
-        <span className="ml-auto"><a href="https://coreui.io">Cargo</a> - <strong>Elastic CSV Tool</strong></span>
-        
+        <span><a href="https://coreui.io">House Rules</a></span>
+        <span className="ml-auto"><a href="https://coreui.io">Cargo</a> - <strong>Elastic Export Tool</strong></span>
       </React.Fragment>
     );
   }
