@@ -9,7 +9,6 @@ const defaultProps = {};
 
 class DefaultFooter extends Component {
   render() {
-    const { children, ...attributes } = this.props;
     return (
       <React.Fragment>
         <span><a href="https://coreui.io">House Rules</a></span>

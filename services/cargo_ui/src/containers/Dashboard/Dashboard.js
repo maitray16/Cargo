@@ -1,44 +1,20 @@
 import React, { Component } from 'react';
-import {
-  AppFooter,
-  AppSidebar,
-  AppSidebarForm,
-  AppSidebarHeader,
-  AppSidebarNav,
-  AppHeader,
-  AppSwitch
+import { AppFooter, AppSidebar, AppSidebarForm, AppSidebarHeader, AppSidebarNav, AppSwitch
 } from '@coreui/react';
 import axios from 'axios';
 import navigation from '../../_nav';
 import DefaultFooter from './DefaultFooter';
 
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  Container,
-  CardHeader,
-  Col,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  InputGroup,
-  InputGroupText,
-  InputGroupAddon,
-  ButtonDropdown,
-  DropdownMenu,
-  DropdownToggle,
-  DropdownItem,
-  Row
+import {Card, CardBody, CardFooter, Badge, Button,
+  Container, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
+  InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem, Row
 } from 'reactstrap';
-import PropTypes from 'prop-types';
+
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-import ReactJson from 'react-json-view'
+// import ReactTable from "react-table";
 
-const cardHeaderColor = '#444f59';
+const cardHeaderColor = '#52616a';
 const cardHeaderTextColor = '#fff';
 const appSidebarColor = '#1e272e';
 const cardHeaderStyle = {background: cardHeaderColor, color: cardHeaderTextColor};
@@ -48,19 +24,30 @@ class Dashboard extends Component {
 
   state = {
     indexList: [],
-    fields: [],
+    fieldList: [],
     url: 'http://172.16.123.1:9200',
-    value: null,
-    dropdownOpen: new Array(19).fill(false)
+    indexValue: null,
+    fieldValue: null,
+    dropdownOpen: new Array(19).fill(false),
+    isPrimaryKeyVisible: false,
+    gte: '',
+    lte: '',
+    count: 0,
+    first: false
   }
-  
 
   constructor(props) {
     super(props);
-    let index = [];
     this._updateValue = this._updateValue.bind(this);
+    this._handleFormInput = this._handleFormInput.bind(this);
+    this._exportData = this._exportData.bind(this);
     this.toggle = this.toggle.bind(this);
+    this._getIndexList();
+  }
 
+
+  _getIndexList(){
+    let index = [];
     axios.post('http://192.168.99.100/cargo/indexlist',{ 
       url:this.state.url
     })
@@ -68,7 +55,6 @@ class Dashboard extends Component {
       index = res.data.data.map((item) => {
         return item;
       });
-     
       this.setState({
         indexList: index
       });
@@ -78,30 +64,70 @@ class Dashboard extends Component {
     }) 
   }
 
-  _updateValue(newValue) {
-    let mapping = [];
-    console.log(newValue);
-		this.setState({
-			value: newValue
-    });
-    // axios.post('http://192.168.99.100/cargo/mapping',{ 
-    //   url:this.state.url,
-    //   index: this.state.value
-    // })
-    // .then(res => {
-    //   mapping = res.data.data.map((item) => {
-    //     return item;
-    //   });
-     
-    //   this.setState({
-    //     fields: mapping
-    //   });
-    // })
-    // .catch(error => {
-    //   console.log(error);
-    // }) 
+  _getMappingList(index){
+    // Gets mapping for only one index
+    axios.post('http://192.168.99.100/cargo/mapping',{ 
+      url:this.state.url,
+      index: index
+    })
+    .then(res => {
+      res.data.data.forEach(item => {
+        this.setState({ 
+          fieldList: this.state.fieldList.concat([item])
+        })
+      });
+    })
+    .catch(error => {
+      console.log(error);
+    }) 
   }
-  
+
+  _handleFormInput(e, formTag){
+    if(formTag === 'gte'){
+      this.setState({gte: e.target.value})
+    }
+    else if(formTag === 'lte'){
+      this.setState({lte: e.target.value})
+    }
+    else if(formTag === 'count'){
+      this.setState({count: e.target.value})
+    }
+
+  }
+
+
+  _updateValue(newValue, flag) {
+    if(flag === 'index'){
+      this.setState({indexValue: newValue});
+      if(newValue === ''){
+        this.setState({fieldList: [], isPrimaryKeyVisible: false})
+      }
+      // else if(newValue.indexOf(',') > -1){
+      //   // This condition is for checking if there are multiple indexes selected
+      //   this.setState({isPrimaryKeyVisible: true});
+      // }
+      else{
+        this.setState({fieldList: []})
+        // This condition is for checking if there is a single index selected
+        this.setState({isPrimaryKeyVisible: false});
+        this._getMappingList(newValue);
+      }
+    }
+    if(flag === 'mapping'){
+      this.setState({fieldValue: newValue});
+    }
+  }
+
+  _exportData(e, type){
+    console.log(type);
+    console.log(this.state.gte);
+    console.log(this.state.lte);
+    console.log(this.state.indexValue);
+    console.log(this.state.fieldValue);
+
+
+  }
+
   toggle(i) {
     const newArray = this.state.dropdownOpen.map((element, index) => { return (index === i ? !element : false); });
     this.setState({
@@ -109,10 +135,9 @@ class Dashboard extends Component {
     });
   }
 
-
-
   render() {
     return (
+    
       <div className="app">
         {/* SideBar component */}
         <div className="app-body">
@@ -124,7 +149,7 @@ class Dashboard extends Component {
           <main className="main">
             <Container fluid style={{marginTop: '2%' }}>
         
-        <div className="animated fadeIn">
+         <div className="animated fadeIn">
             
             <Row>
             {/* Download card */}
@@ -141,8 +166,10 @@ class Dashboard extends Component {
                   <Form action="" method="post" className="form-horizontal">
                     <FormGroup row>
                       <Col md="3">
-                        <Label htmlFor="hf-email">Index Names</Label>
+                        <Button size={'md'} color="primary">Index Names</Button>&nbsp;
+                        <Button outline size={'md'} color="primary">Regex Names</Button>
                       </Col>
+                      
                       <Col xs="12" md="9">
                       
                       <Select 
@@ -151,14 +178,14 @@ class Dashboard extends Component {
                           options={this.state.indexList}
                           simpleValue
                           clearable
-                          multi
                           name="select-index"
-                          value={this.state.value}
+                          value={this.state.indexValue}
+                          onChange={(e) => this._updateValue(e, 'index')}
                           searchable
                           labelKey="name"
                           valueKey="name"
                         />
-            
+                    
                       </Col>
                     </FormGroup>
 
@@ -170,11 +197,12 @@ class Dashboard extends Component {
                         <InputGroup className="input-prepend">
                             <InputGroupAddon addonType="prepend">
                                 <InputGroupText><i className="fa fa-clock-o"></i></InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="text" id="hf-password" name="hf-password" placeholder="15m" autoComplete="current-password"/>
-                          </InputGroup>
+                            </InputGroupAddon>
+                          <Input type="text" id="gte" name="gte" placeholder="now-15m" onChange={(e) => this._handleFormInput(e, 'gte')} />
+                        </InputGroup>
                       </Col>
                     </FormGroup>
+
                     <FormGroup row>
                       <Col md="3">
                         <Label htmlFor="hf-password">LTE - @timestamp</Label>
@@ -184,7 +212,7 @@ class Dashboard extends Component {
                             <InputGroupAddon addonType="prepend">
                                 <InputGroupText><i className="fa fa-clock-o"></i></InputGroupText>
                         </InputGroupAddon>
-                        <Input type="text" id="hf-password" name="hf-password" placeholder="15m" autoComplete="current-password"/>
+                        <Input type="text" id="lte" name="lte" placeholder="now" onChange={(e) => this._handleFormInput(e, 'lte')} />
                           </InputGroup>
                       </Col>
                     </FormGroup>
@@ -194,7 +222,7 @@ class Dashboard extends Component {
                         <Label htmlFor="hf-password">Count</Label>
                       </Col>
                       <Col xs="12" md="9">
-                        <Input type="number" id="hf-password" name="hf-password" placeholder="Number of log samples" />
+                        <Input type="number" id="count" name="count" placeholder="Number of log samples" onChange={(e) => this._handleFormInput(e, 'count')} />
                       </Col>
                     </FormGroup>
 
@@ -203,31 +231,28 @@ class Dashboard extends Component {
                         <Label htmlFor="hf-email">Choose Fields</Label>
                       </Col>
                       <Col xs="12" md="9">
-                      
                       <Select 
-                          id="index-select"
+                          id="mapping-select"
                           ref={(ref) => { this.select = ref; }}
-                          options={this.state.fields}
+                          options={this.state.fieldList}
                           simpleValue
                           clearable
                           multi
                           name="select-index"
-                          value={this.state.value}
-                          onChange={this._updateValue}
+                          value={this.state.fieldValue}
+                          onChange={(e) => this._updateValue(e, 'mapping')}
                           searchable
                           labelKey="field"
                           valueKey="field"
-                        />
-            
+                        /> 
                       </Col>
                     </FormGroup>
 
-                     <FormGroup row>
+                     { this.state.isPrimaryKeyVisible ? <FormGroup row>
                       <Col md="3">
                         <Label htmlFor="hf-email">Choose Primary Key</Label>
                       </Col>
                       <Col xs="12" md="9">
-                      
                       <Select 
                           id="index-select"
                           ref={(ref) => { this.select = ref; }}
@@ -241,9 +266,8 @@ class Dashboard extends Component {
                           labelKey="name"
                           valueKey="name"
                         />
-            
                       </Col>
-                    </FormGroup>
+                    </FormGroup> : null }
 
                     <FormGroup row>
                       <Col md="3">
@@ -273,13 +297,28 @@ class Dashboard extends Component {
                         Export data
                     </DropdownToggle>
                     <DropdownMenu>
-                      <DropdownItem >Export CSV</DropdownItem>
-                      <DropdownItem>Export MongoDB</DropdownItem>
-                      <DropdownItem>Export SQL</DropdownItem>
+                      <DropdownItem onClick={(e) => this._exportData(e, 'csv')}>Export CSV </DropdownItem>
+                      <DropdownItem onClick={(e) => this._exportData(e, 'mongo')}>Export MongoDB</DropdownItem>
+                      <DropdownItem onClick={(e) => this._exportData(e, 'sql')}>Export SQL</DropdownItem>
                     </DropdownMenu>
                   </ButtonDropdown>
                 
                 </CardFooter>
+              </Card>
+            </Col>
+          
+          </Row>
+
+          <Row>
+            {/* Audit card */}
+            <Col md="12">
+              <Card>
+                <CardHeader style={cardHeaderStyle}>
+                  <i className="fa fa-tasks"></i><strong>Data </strong> History
+                </CardHeader>
+                <CardBody>
+                
+                </CardBody>
               </Card>
             </Col>
           

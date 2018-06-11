@@ -1,4 +1,3 @@
-import logo from './assets/img/package.png'
 export default {
   items: [
     {

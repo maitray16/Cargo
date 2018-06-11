@@ -10,11 +10,12 @@ import { Connect } from './containers'
 import { Dashboard } from './containers';
 
 class App extends Component {
+  
   render() {
     return (
       <BrowserRouter>
         <Switch>
-          <Route exact path="/dashboard" name="Dashboard" component={Dashboard} />
+          <Route exact path="/dashboard" name="Dashboard" component={Dashboard}/>
           <Route path="/" name="Connect" component={Connect} />
         </Switch>
       </BrowserRouter>

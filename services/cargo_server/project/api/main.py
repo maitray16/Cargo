@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, g
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers
 
 main_blueprint = Blueprint('main', __name__)
 
@@ -50,15 +50,36 @@ def get_mapping():
     index = data.get("index")
     es = get_connection(url)
     mapping_block = es.indices.get_mapping(index=index, doc_type=None)
-    mappings = mapping_block[index]['mappings']['doc']['properties']
-    for field in mappings.keys():
-        field_list.append(field)
+    doc_type = mapping_block[index]['mappings']
+    for doc in doc_type.keys():
+        mappings = mapping_block[index]['mappings'][doc]['properties']
+        for field in mappings.keys():
+            field_list.append(field)
+
     response_object = {
         'status': 'success',
         'data': [{"field" : i} for i in field_list]            
     }
     return jsonify(response_object), 200
-        
+
+@main_blueprint.route('/cargo/export', methods=["POST"])
+def export_data():
+    data = request.get_json()
+    url = data.get("url")
+    index = data.get("index")
+    gte = data.get("gte")
+    lte = data.get("lte")
+    fields = data.get("fields")
+    export_type = data.get("type")
+    count = data.get("count")
+
+    response_object = {
+        'status': 'success',
+        'data' : 'message received'
+    }
+    return jsonify(response_object), 200
+
+
 
 @main_blueprint.route('/cargo/ping', methods=["GET"])
 def ping():

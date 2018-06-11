@@ -32,7 +32,7 @@ services:
       - APP_SETTINGS=project.config.DevelopmentConfig 
 
   nginx:
-    container_name: nginx
+    container_name: cargo_nginx
     build:
       context: ./services/nginx
       dockerfile: Dockerfile-dev
@@ -42,6 +42,17 @@ services:
     depends_on:
       - cargo_server
       - cargo_ui
+  
+  cargo_redis:
+    container_name: cargo_redis
+    image: redis:4.0.0
+
+  cargo_mongo_db:
+    image: mongo:3.6.5
+    container_name: cargo_mongo_db
+    volumes:
+      - ./db:/data/db
+
   
   # cadvisor:
   #   image: google/cadvisor:v0.28.3

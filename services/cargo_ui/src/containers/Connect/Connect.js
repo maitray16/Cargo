@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Button, Card, CardBody, CardGroup, Col, Container, Alert, Input, InputGroup, Row } from 'reactstrap';
-import logo from '../../assets/img/package.svg'
+import logo from '../../assets/img/package.svg';
 
 class Connect extends Component {
   state = {
@@ -25,7 +25,6 @@ class Connect extends Component {
         this.props.history.push('/dashboard')
       }
       else{
-
       }
      
     })
