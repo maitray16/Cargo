@@ -190,7 +190,7 @@ class Dashboard extends Component {
                   <Form action="" method="post" className="form-horizontal">
                     <FormGroup row>
                       <Col md="3">
-                        <Label htmlFor="hf-password">Index Names</Label>
+                        <Label htmlFor="indexnames">Index Names</Label>
                       </Col>
                       
                       <Col xs="12" md="9"  style={{position: 'relative' , zIndex: 999}}>
@@ -258,7 +258,7 @@ class Dashboard extends Component {
                      { this.state.isTimeRangeVisible ? 
                      <FormGroup row>
                       <Col md="3">
-                        <Label htmlFor="hf-password">GTE - @timestamp</Label>
+                        <Label htmlFor="gte">GTE - @timestamp</Label>
                       </Col>
                       <Col xs="12" md="9">
                         <InputGroup className="input-prepend">
@@ -273,7 +273,7 @@ class Dashboard extends Component {
                     { this.state.isTimeRangeVisible ? null : 
                     <FormGroup row>
                       <Col md="3">
-                        <Label htmlFor="hf-password">Custom Query</Label>
+                        <Label htmlFor="custom-query">Custom Query</Label>
                       </Col>
                       <Col md="9">
                         <AceEditor
@@ -296,7 +296,7 @@ class Dashboard extends Component {
                     { this.state.isTimeRangeVisible ?
                     <FormGroup row>
                       <Col md="3">
-                        <Label htmlFor="hf-password">LTE - @timestamp</Label>
+                        <Label htmlFor="lte">LTE - @timestamp</Label>
                       </Col>
                       <Col xs="12" md="9">
                         <InputGroup className="input-prepend">
