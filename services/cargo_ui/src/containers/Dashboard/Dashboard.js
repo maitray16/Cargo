@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
-import { AppFooter, AppSidebar, AppSidebarForm, AppSidebarHeader, AppSidebarNav, AppSwitch
-} from '@coreui/react';
+import { AppFooter, AppSidebar, AppSidebarForm, AppSidebarHeader, AppSidebarNav, 
+  AppSwitch } from '@coreui/react';
 import axios from 'axios';
+import AceEditor from 'react-ace';
 import navigation from '../../_nav';
 import DefaultFooter from './DefaultFooter';
 
-import {Card, CardBody, CardFooter, Badge, Button,
-  Container, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
+import {Card, CardBody, CardFooter, Button, Container, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
   InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem, Row
-} from 'reactstrap';
+  } from 'reactstrap';
 
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
+import 'brace/mode/json';
+import 'brace/theme/monokai';
+
 // import ReactTable from "react-table";
 
 const cardHeaderColor = '#52616a';
@@ -23,26 +26,29 @@ const appSidebarStyle = {background: appSidebarColor};
 class Dashboard extends Component {
 
   state = {
+    dropdownOpen: new Array(19).fill(false),
+    url: 'http://172.16.123.1:9200',
     indexList: [],
     fieldList: [],
-    url: 'http://172.16.123.1:9200',
     indexValue: null,
     fieldValue: null,
-    dropdownOpen: new Array(19).fill(false),
-    isPrimaryKeyVisible: false,
     gte: '',
     lte: '',
-    count: 0,
-    first: false
+    editorString: '',
+    isTimeRangeVisible: true,
+    hideData: false,
+    hideDataButton: <Button outline color="danger" onClick={(e) => this.hideDataToggle()}>Enable Data Obfuscation</Button>
   }
 
   constructor(props) {
     super(props);
-    this._updateValue = this._updateValue.bind(this);
-    this._handleFormInput = this._handleFormInput.bind(this);
-    this._exportData = this._exportData.bind(this);
-    this.toggle = this.toggle.bind(this);
     this._getIndexList();
+    this.toggle = this.toggle.bind(this);
+    this._updateValue = this._updateValue.bind(this);
+    this._handleOnChange = this._handleOnChange.bind(this);
+    this._exportData = this._exportData.bind(this);
+    this._handleEditorInput = this._handleEditorInput.bind(this);
+    this.hideDataToggle = this.hideDataToggle.bind(this);
   }
 
 
@@ -82,48 +88,58 @@ class Dashboard extends Component {
     }) 
   }
 
-  _handleFormInput(e, formTag){
-    if(formTag === 'gte'){
+  _handleOnChange(e, tag){
+    if(tag === 'gte'){
       this.setState({gte: e.target.value})
     }
-    else if(formTag === 'lte'){
+    else if(tag === 'lte'){
       this.setState({lte: e.target.value})
     }
-    else if(formTag === 'count'){
-      this.setState({count: e.target.value})
+    else if(tag === 'editor'){
+      if(this.state.isTimeRangeVisible)
+        this.setState({isTimeRangeVisible: false})
+      else
+        this.setState({isTimeRangeVisible: true})
     }
-
   }
 
-
-  _updateValue(newValue, flag) {
-    if(flag === 'index'){
+  _updateValue(newValue, tag) {
+    if(tag === 'index'){
       this.setState({indexValue: newValue});
       if(newValue === ''){
-        this.setState({fieldList: [], isPrimaryKeyVisible: false})
+        this.setState({fieldList: []})
       }
-      // else if(newValue.indexOf(',') > -1){
-      //   // This condition is for checking if there are multiple indexes selected
-      //   this.setState({isPrimaryKeyVisible: true});
-      // }
       else{
         this.setState({fieldList: []})
         // This condition is for checking if there is a single index selected
-        this.setState({isPrimaryKeyVisible: false});
         this._getMappingList(newValue);
       }
     }
-    if(flag === 'mapping'){
+    if(tag === 'mapping'){
       this.setState({fieldValue: newValue});
     }
   }
 
-  _exportData(e, type){
-    console.log(type);
-    console.log(this.state.gte);
-    console.log(this.state.lte);
-    console.log(this.state.indexValue);
-    console.log(this.state.fieldValue);
+  _handleEditorInput(newValue){
+    this.setState({editorString: newValue})
+  }
+
+  _exportData(e, type){    
+    axios.post('http://192.168.99.100/cargo/export',{ 
+      url: this.state.url,
+      index: this.state.indexValue,
+      field: this.state.fieldValue,
+      query: this.state.editorString,
+      type: type
+    })
+    .then(res => {
+      console.log(res.data.count);
+    })
+    .catch(error => {
+      console.log(error);
+    }) 
+
+
 
 
   }
@@ -133,6 +149,14 @@ class Dashboard extends Component {
     this.setState({
       dropdownOpen: newArray,
     });
+  }
+
+  hideDataToggle(){
+    if(!this.state.hideData){
+      this.setState({hideData: true, hideDataButton: <Button color="danger" onClick={(e) => this.hideDataToggle()}>Data Obfuscation Enabled</Button>})
+    }else{
+      this.setState({hideData: false, hideDataButton: <Button outline color="danger" onClick={(e) => this.hideDataToggle()}>Enable Data Obfuscation</Button>})
+    }
   }
 
   render() {
@@ -158,21 +182,20 @@ class Dashboard extends Component {
                 <CardHeader style={cardHeaderStyle}>
                 <i className="fa fa-tasks"></i><strong>Download</strong> Information
                 <div className="card-header-actions"> 
-                    <span className="text-muted" >Data Obfuscation &nbsp;</span>
-                    <AppSwitch className={'float-right mb-0'} variant={'pill'} label color={'success'} size={'sm'}/>
+                  <span className="text-muted"><strong>Custom Query </strong>&nbsp;</span>
+                  <AppSwitch onChange={(e) => this._handleOnChange(e, 'editor')}className={'float-right mb-0'} variant={'pill'} label color={'success'} size={'sm'}/>
                 </div>
                 </CardHeader>
                 <CardBody>
                   <Form action="" method="post" className="form-horizontal">
                     <FormGroup row>
                       <Col md="3">
-                        <Button size={'md'} color="primary">Index Names</Button>&nbsp;
-                        <Button outline size={'md'} color="primary">Regex Names</Button>
+                        <Label htmlFor="hf-password">Index Names</Label>
                       </Col>
                       
-                      <Col xs="12" md="9">
+                      <Col xs="12" md="9"  style={{position: 'relative' , zIndex: 999}}>
                       
-                      <Select 
+                      <Select
                           id="index-select"
                           ref={(ref) => { this.select = ref; }}
                           options={this.state.indexList}
@@ -188,49 +211,12 @@ class Dashboard extends Component {
                     
                       </Col>
                     </FormGroup>
-
-                    <FormGroup row>
-                      <Col md="3">
-                        <Label htmlFor="hf-password">GTE - @timestamp</Label>
-                      </Col>
-                      <Col xs="12" md="9">
-                        <InputGroup className="input-prepend">
-                            <InputGroupAddon addonType="prepend">
-                                <InputGroupText><i className="fa fa-clock-o"></i></InputGroupText>
-                            </InputGroupAddon>
-                          <Input type="text" id="gte" name="gte" placeholder="now-15m" onChange={(e) => this._handleFormInput(e, 'gte')} />
-                        </InputGroup>
-                      </Col>
-                    </FormGroup>
-
-                    <FormGroup row>
-                      <Col md="3">
-                        <Label htmlFor="hf-password">LTE - @timestamp</Label>
-                      </Col>
-                      <Col xs="12" md="9">
-                        <InputGroup className="input-prepend">
-                            <InputGroupAddon addonType="prepend">
-                                <InputGroupText><i className="fa fa-clock-o"></i></InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="text" id="lte" name="lte" placeholder="now" onChange={(e) => this._handleFormInput(e, 'lte')} />
-                          </InputGroup>
-                      </Col>
-                    </FormGroup>
                     
-                    <FormGroup row>
-                      <Col md="3">
-                        <Label htmlFor="hf-password">Count</Label>
-                      </Col>
-                      <Col xs="12" md="9">
-                        <Input type="number" id="count" name="count" placeholder="Number of log samples" onChange={(e) => this._handleFormInput(e, 'count')} />
-                      </Col>
-                    </FormGroup>
-
                      <FormGroup row>
                       <Col md="3">
                         <Label htmlFor="hf-email">Choose Fields</Label>
                       </Col>
-                      <Col xs="12" md="9">
+                      <Col xs="12" md="9" style={{position: 'relative' , zIndex: 995}}>
                       <Select 
                           id="mapping-select"
                           ref={(ref) => { this.select = ref; }}
@@ -247,27 +233,6 @@ class Dashboard extends Component {
                         /> 
                       </Col>
                     </FormGroup>
-
-                     { this.state.isPrimaryKeyVisible ? <FormGroup row>
-                      <Col md="3">
-                        <Label htmlFor="hf-email">Choose Primary Key</Label>
-                      </Col>
-                      <Col xs="12" md="9">
-                      <Select 
-                          id="index-select"
-                          ref={(ref) => { this.select = ref; }}
-                          options={this.state.indexList}
-                          simpleValue
-                          clearable
-                          name="select-index"
-                          value={this.state.value}
-                          onChange={this._updateValue}
-                          searchable
-                          labelKey="name"
-                          valueKey="name"
-                        />
-                      </Col>
-                    </FormGroup> : null }
 
                     <FormGroup row>
                       <Col md="3">
@@ -289,20 +254,75 @@ class Dashboard extends Component {
                       </Col>
                     </FormGroup>
 
+
+                     { this.state.isTimeRangeVisible ? 
+                     <FormGroup row>
+                      <Col md="3">
+                        <Label htmlFor="hf-password">GTE - @timestamp</Label>
+                      </Col>
+                      <Col xs="12" md="9">
+                        <InputGroup className="input-prepend">
+                            <InputGroupAddon addonType="prepend">
+                                <InputGroupText><i className="fa fa-clock-o"></i></InputGroupText>
+                            </InputGroupAddon>
+                          <Input type="text" id="gte" name="gte" placeholder="now-15m" onChange={(e) => this._handleOnChange(e, 'gte')} required />
+                        </InputGroup>
+                      </Col>
+                    </FormGroup> : null}
+                    
+                    { this.state.isTimeRangeVisible ? null : 
+                    <FormGroup row>
+                      <Col md="3">
+                        <Label htmlFor="hf-password">Custom Query</Label>
+                      </Col>
+                      <Col md="9">
+                        <AceEditor
+                          mode="json"
+                          theme="monokai"
+                          onChange={(e) => this._handleEditorInput}
+                          name="editor"
+                          fontSize={12}
+                          editorProps={{$blockScrolling: true}}
+                          setOptions={{
+                            enableBasicAutocompletion: false,
+                            enableLiveAutocompletion: false,
+                            enableSnippets: false,
+                            showLineNumbers: true,
+                            tabSize: 2
+                          }}/> 
+                        </Col>
+                      </FormGroup>}
+
+                    { this.state.isTimeRangeVisible ?
+                    <FormGroup row>
+                      <Col md="3">
+                        <Label htmlFor="hf-password">LTE - @timestamp</Label>
+                      </Col>
+                      <Col xs="12" md="9">
+                        <InputGroup className="input-prepend">
+                            <InputGroupAddon addonType="prepend">
+                                <InputGroupText><i className="fa fa-clock-o"></i></InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" id="lte" name="lte" placeholder="now" onChange={(e) => this._handleOnChange(e, 'lte')} required/>
+                          </InputGroup>
+                      </Col>
+                    </FormGroup>: null}
+
                   </Form>
                 </CardBody>
+
                 <CardFooter>
                   <ButtonDropdown className="mr-1" isOpen={this.state.dropdownOpen[18]} toggle={() => { this.toggle(18); }}>
                     <DropdownToggle caret color="primary">
-                        Export data
+                        Export Data
                     </DropdownToggle>
                     <DropdownMenu>
                       <DropdownItem onClick={(e) => this._exportData(e, 'csv')}>Export CSV </DropdownItem>
                       <DropdownItem onClick={(e) => this._exportData(e, 'mongo')}>Export MongoDB</DropdownItem>
                       <DropdownItem onClick={(e) => this._exportData(e, 'sql')}>Export SQL</DropdownItem>
                     </DropdownMenu>
-                  </ButtonDropdown>
-                
+                  </ButtonDropdown>&nbsp; &nbsp; 
+                  {this.state.hideDataButton}
                 </CardFooter>
               </Card>
             </Col>

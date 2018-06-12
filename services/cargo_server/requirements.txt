@@ -4,4 +4,4 @@ flask-cors
 gunicorn==19.8.1
 coverage==4.5.1
 flake8
-elasticsearch
+elasticsearch>=6.0.0,<7.0.0

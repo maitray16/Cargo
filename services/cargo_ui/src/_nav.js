@@ -13,5 +13,12 @@ export default {
       variant: 'success',
     
     },
+    {
+      name: 'Mirage',
+      url: 'http://coreui.io/pro/react/',
+      icon: 'fa fa-code',
+      variant: 'success',
+    
+    }
   ],
 };

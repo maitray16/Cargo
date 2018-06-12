@@ -45,6 +45,7 @@ def index_list_elastic():
 @main_blueprint.route('/cargo/mapping', methods=["POST"])
 def get_mapping():
     field_list = []
+    timestamp = False
     data = request.get_json()
     url = data.get("url")
     index = data.get("index")
@@ -55,27 +56,36 @@ def get_mapping():
         mappings = mapping_block[index]['mappings'][doc]['properties']
         for field in mappings.keys():
             field_list.append(field)
-
+           
     response_object = {
         'status': 'success',
-        'data': [{"field" : i} for i in field_list]            
+        'data': [{"field" : i} for i in field_list]
     }
     return jsonify(response_object), 200
 
 @main_blueprint.route('/cargo/export', methods=["POST"])
 def export_data():
+    count = 0
     data = request.get_json()
     url = data.get("url")
     index = data.get("index")
-    gte = data.get("gte")
-    lte = data.get("lte")
+    query = data.get("query")
     fields = data.get("fields")
     export_type = data.get("type")
-    count = data.get("count")
+
+    result = helpers.scan(
+         client = get_connection(url),
+         index = index,
+         preserve_order=True,
+         query=query,
+    )
+    for item in result:
+        count = count + 1
 
     response_object = {
         'status': 'success',
-        'data' : 'message received'
+        'data': 'message received',
+        'count': count 
     }
     return jsonify(response_object), 200
 
