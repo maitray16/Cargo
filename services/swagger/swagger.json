@@ -1,0 +1,60 @@
+{  
+    "info":{  
+       "version":"0.1.0",
+       "description":"Swagger spec for documenting the cargo_server",
+       "title":"Cargo Service"
+    },
+    "paths":{  
+       "/cargo/connect":{  
+            "post":{  
+            "requestBody":{  
+               "content":{  
+                  "application/json":{  
+                     "schema":{  
+                        "$ref":"#/components/schemas/connect"
+                     }
+                  }
+               },
+               "required":true,
+               "description":"Connect to elasticsearch"
+            },
+            "responses":{  
+               "200":{  
+                  "description":"{ 'status': 'success', 'data': true }"
+                },
+                "400":{  
+                    "description":"{ 'status': 'fail', 'data': false }"
+                  }
+            },
+            "summary":"Establish connection to elasticsearch host"
+          }
+       },
+       "/cargo/ping":{  
+          "get":{  
+             "responses":{  
+                "200":{  
+                   "description":"{ 'data' : 'Pong!!' }"
+                }
+             },
+             "summary":"Sanity check"
+          }
+       }
+    },
+    "servers":[  
+       {  
+          "url":"http://192.168.99.100/"
+       }
+    ],
+    "components":{  
+       "schemas":{  
+          "connect":{  
+             "properties":{  
+                "host":{  
+                   "type":"string"
+                }
+             }
+          }
+       }
+    },
+    "openapi":"3.0.0"
+ }
