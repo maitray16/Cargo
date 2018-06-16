@@ -5,18 +5,18 @@ import logo from '../../assets/img/package.svg';
 
 class Connect extends Component {
   state = {
-    url: '',
+    host: '',
     flag: false
   }
 
   handleChange = event => {
-    this.setState({ url: event.target.value });
+    this.setState({ host: event.target.value });
   }
 
   handleSubmit = event => {
     event.preventDefault();
     axios.post('http://192.168.99.100/cargo/connect',{ 
-      url:this.state.url
+      host:this.state.host
     })
     .then(res => {
       console.log(res);

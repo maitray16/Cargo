@@ -40,6 +40,13 @@ services:
     depends_on:
       - cargo_server
       - cargo_ui
+      - cargo_mongo_db
+
+  cargo_mongo_db:
+    image: "mongo:latest"
+    container_name: cargo_mongo_db
+    ports:
+     - "27017:27017"
   
   # cadvisor:
   #   image: google/cadvisor:v0.28.3

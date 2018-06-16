@@ -42,16 +42,14 @@ services:
     depends_on:
       - cargo_server
       - cargo_ui
-  
-  cargo_redis:
-    container_name: cargo_redis
-    image: redis:4.0.0
+      - cargo_mongo_db
 
   cargo_mongo_db:
-    image: mongo:3.6.5
+    image: "mongo:latest"
     container_name: cargo_mongo_db
-    volumes:
-      - ./db:/data/db
+    ports:
+     - "27017:27017"
+    # command: mongod --port 27017
 
   
   # cadvisor:

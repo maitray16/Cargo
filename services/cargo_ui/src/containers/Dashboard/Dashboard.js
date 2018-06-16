@@ -5,10 +5,12 @@ import axios from 'axios';
 import AceEditor from 'react-ace';
 import navigation from '../../_nav';
 import DefaultFooter from './DefaultFooter';
+import FileDownload from 'react-file-download';
+import ReactLoading from 'react-loading';
+import 'loaders.css/src/animations/line-scale.scss';
 
 import {Card, CardBody, CardFooter, Button, Container, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
-  InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem, Row
-  } from 'reactstrap';
+  InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem, Row } from 'reactstrap';
 
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
@@ -27,35 +29,34 @@ class Dashboard extends Component {
 
   state = {
     dropdownOpen: new Array(19).fill(false),
-    url: 'http://172.16.123.1:9200',
+    host: 'http://172.16.123.1:9200',
     indexList: [],
     fieldList: [],
     indexValue: null,
     fieldValue: null,
     gte: '',
     lte: '',
-    editorString: '',
-    isTimeRangeVisible: true,
+    editorString: '{\n\t "query": {\n\t\t"match_all": {} \n\t}\n}',
+    isTimeRangeVisible: false,
     hideData: false,
-    hideDataButton: <Button outline color="danger" onClick={(e) => this.hideDataToggle()}>Enable Data Obfuscation</Button>
+    countText: 'Check doc count',
+    loading: false,
+    hideDataButton: <Button outline color="secondary" onClick={(e) => this._onClickHandler(e, 'data_obfs_button')}>Enable Data Obfuscation</Button>
   }
 
   constructor(props) {
     super(props);
     this._getIndexList();
     this.toggle = this.toggle.bind(this);
-    this._updateValue = this._updateValue.bind(this);
-    this._handleOnChange = this._handleOnChange.bind(this);
-    this._exportData = this._exportData.bind(this);
-    this._handleEditorInput = this._handleEditorInput.bind(this);
-    this.hideDataToggle = this.hideDataToggle.bind(this);
+    this._onChangeHandler = this._onChangeHandler.bind(this);
+    this._onClickHandler = this._onClickHandler.bind(this);
   }
 
 
   _getIndexList(){
     let index = [];
-    axios.post('http://192.168.99.100/cargo/indexlist',{ 
-      url:this.state.url
+    axios.post('http://192.168.99.100/cargo/index',{ 
+      host:this.state.host
     })
     .then(res => {
       index = res.data.data.map((item) => {
@@ -70,10 +71,18 @@ class Dashboard extends Component {
     }) 
   }
 
+  _generateID(){
+    let text = "";
+    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (var i = 0; i < 4; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
+  }
+
   _getMappingList(index){
     // Gets mapping for only one index
     axios.post('http://192.168.99.100/cargo/mapping',{ 
-      url:this.state.url,
+      host:this.state.host,
       index: index
     })
     .then(res => {
@@ -88,62 +97,6 @@ class Dashboard extends Component {
     }) 
   }
 
-  _handleOnChange(e, tag){
-    if(tag === 'gte'){
-      this.setState({gte: e.target.value})
-    }
-    else if(tag === 'lte'){
-      this.setState({lte: e.target.value})
-    }
-    else if(tag === 'editor'){
-      if(this.state.isTimeRangeVisible)
-        this.setState({isTimeRangeVisible: false})
-      else
-        this.setState({isTimeRangeVisible: true})
-    }
-  }
-
-  _updateValue(newValue, tag) {
-    if(tag === 'index'){
-      this.setState({indexValue: newValue});
-      if(newValue === ''){
-        this.setState({fieldList: []})
-      }
-      else{
-        this.setState({fieldList: []})
-        // This condition is for checking if there is a single index selected
-        this._getMappingList(newValue);
-      }
-    }
-    if(tag === 'mapping'){
-      this.setState({fieldValue: newValue});
-    }
-  }
-
-  _handleEditorInput(newValue){
-    this.setState({editorString: newValue})
-  }
-
-  _exportData(e, type){    
-    axios.post('http://192.168.99.100/cargo/export',{ 
-      url: this.state.url,
-      index: this.state.indexValue,
-      field: this.state.fieldValue,
-      query: this.state.editorString,
-      type: type
-    })
-    .then(res => {
-      console.log(res.data.count);
-    })
-    .catch(error => {
-      console.log(error);
-    }) 
-
-
-
-
-  }
-
   toggle(i) {
     const newArray = this.state.dropdownOpen.map((element, index) => { return (index === i ? !element : false); });
     this.setState({
@@ -151,15 +104,91 @@ class Dashboard extends Component {
     });
   }
 
-  hideDataToggle(){
-    if(!this.state.hideData){
-      this.setState({hideData: true, hideDataButton: <Button color="danger" onClick={(e) => this.hideDataToggle()}>Data Obfuscation Enabled</Button>})
-    }else{
-      this.setState({hideData: false, hideDataButton: <Button outline color="danger" onClick={(e) => this.hideDataToggle()}>Enable Data Obfuscation</Button>})
+  _onClickHandler(e, tag){
+    switch(tag){
+      case 'app-switch':
+        if(this.state.isTimeRangeVisible)
+          this.setState({isTimeRangeVisible: false})
+        else
+          this.setState({isTimeRangeVisible: true})
+        break;
+      
+      case 'doc_count':
+        this.setState({countText: 'Crunching some numbers..'})
+        axios.post('http://192.168.99.100/cargo/doc_count',{ 
+          host: this.state.host,
+          index: this.state.indexValue
+          }).then(res => {
+            this.setState({
+            countText: 'Doc Count - ' + res.data.data
+              })
+            }).catch(error => {
+            console.log(error);
+          }) 
+        break;
+
+      case 'data_obfs_button':
+        if(!this.state.hideData){
+          this.setState({hideData: true, hideDataButton: <Button color="danger" onClick={(e) => this._onClickHandler(e, 'data_obfs_button')}>Data Obfuscation Enabled</Button>})
+        } else{
+          this.setState({hideData: false, hideDataButton: <Button outline color="secondary" onClick={(e) => this._onClickHandler(e, 'data_obfs_button')}>Enable Data Obfuscation</Button>})
+        }
+        break;
+
+      case 'csv':
+      case 'mongo':
+      case 'sql':
+        this.setState({loading: true})
+        axios.post('http://192.168.99.100/cargo/export',{ 
+          host: this.state.host,
+          index: this.state.indexValue.split(','),
+          fields: this.state.fieldValue.split(','),
+          query: this.state.editorString,
+          type: tag
+          }).then(res => {
+            this.setState({loading: false})
+            FileDownload(res.data, this.state.indexValue + "-" + this._generateID() + ".csv");
+          }).catch(error => {
+            console.log(error);
+          })
+        break;
+      
+      default:
+          break;
     }
   }
 
-  render() {
+  _onChangeHandler(e, tag){
+    switch(tag){
+      case 'gte':
+        this.setState({gte: e.target.value})
+        break;
+      case 'lte':
+        this.setState({lte: e.target.value})
+        break;
+      case 'index-select':
+        this.setState({indexValue: e});
+          if(e === ''){
+            this.setState({fieldList: []})
+          }
+          else{
+          this.setState({fieldList: []})
+          this._getMappingList(e);
+          }
+        break;
+      case 'mapping-select':
+        this.setState({fieldValue: e});
+        break;
+      case 'editor-value':
+        this.setState({editorString: e});
+        break;
+      
+      default:
+        break;
+    }
+  }
+
+  render(){
     return (
     
       <div className="app">
@@ -183,7 +212,7 @@ class Dashboard extends Component {
                 <i className="fa fa-tasks"></i><strong>Download</strong> Information
                 <div className="card-header-actions"> 
                   <span className="text-muted"><strong>Custom Query </strong>&nbsp;</span>
-                  <AppSwitch onChange={(e) => this._handleOnChange(e, 'editor')}className={'float-right mb-0'} variant={'pill'} label color={'success'} size={'sm'}/>
+                  <AppSwitch onClick={(e) => this._onClickHandler(e, 'app-switch')}className={'float-right mb-0'} variant={'pill'} label color={'success'} size={'sm'} checked/>
                 </div>
                 </CardHeader>
                 <CardBody>
@@ -203,10 +232,10 @@ class Dashboard extends Component {
                           clearable
                           name="select-index"
                           value={this.state.indexValue}
-                          onChange={(e) => this._updateValue(e, 'index')}
+                          onChange={(e) => this._onChangeHandler(e, 'index-select')}
                           searchable
-                          labelKey="name"
-                          valueKey="name"
+                          labelKey="index"
+                          valueKey="index"
                         />
                     
                       </Col>
@@ -224,9 +253,9 @@ class Dashboard extends Component {
                           simpleValue
                           clearable
                           multi
-                          name="select-index"
+                          name="select-mapping"
                           value={this.state.fieldValue}
-                          onChange={(e) => this._updateValue(e, 'mapping')}
+                          onChange={(e) => this._onChangeHandler(e, 'mapping-select')}
                           searchable
                           labelKey="field"
                           valueKey="field"
@@ -240,15 +269,15 @@ class Dashboard extends Component {
                       </Col>
                       <Col md="9">
                         <FormGroup check inline>
-                          <Input className="form-check-input" type="radio" id="inline-radio1" name="inline-radios" value="option1" />
+                          <Input className="form-check-input" type="radio" id="inline-radio1" name="inline-radios" value="option1" autoComplete="off"/>
                           <Label className="form-check-label" check htmlFor="inline-radio1">80/20</Label>
                         </FormGroup>
                         <FormGroup check inline>
-                          <Input className="form-check-input" type="radio" id="inline-radio2" name="inline-radios" value="option2" />
+                          <Input className="form-check-input" type="radio" id="inline-radio2" name="inline-radios" value="option2" autoComplete="off"/>
                           <Label className="form-check-label" check htmlFor="inline-radio2">70/30</Label>
                         </FormGroup>
                         <FormGroup check inline>
-                          <Input className="form-check-input" type="radio" id="inline-radio3" name="inline-radios" value="option3" />
+                          <Input className="form-check-input" type="radio" id="inline-radio3" name="inline-radios" value="option3" autoComplete="off"/>
                           <Label className="form-check-label" check htmlFor="inline-radio3">60/40</Label>
                         </FormGroup>
                       </Col>
@@ -265,7 +294,7 @@ class Dashboard extends Component {
                             <InputGroupAddon addonType="prepend">
                                 <InputGroupText><i className="fa fa-clock-o"></i></InputGroupText>
                             </InputGroupAddon>
-                          <Input type="text" id="gte" name="gte" placeholder="now-15m" onChange={(e) => this._handleOnChange(e, 'gte')} required />
+                          <Input type="text" id="gte" name="gte" placeholder="now-15m" onChange={(e) => this._onChangeHandler(e, 'gte')} required />
                         </InputGroup>
                       </Col>
                     </FormGroup> : null}
@@ -279,9 +308,10 @@ class Dashboard extends Component {
                         <AceEditor
                           mode="json"
                           theme="monokai"
-                          onChange={(e) => this._handleEditorInput}
+                          value={this.state.editorString}
+                          onChange={(e) => this._onChangeHandler(e, 'editor-value')}
                           name="editor"
-                          fontSize={12}
+                          fontSize={14}
                           editorProps={{$blockScrolling: true}}
                           setOptions={{
                             enableBasicAutocompletion: false,
@@ -303,7 +333,7 @@ class Dashboard extends Component {
                             <InputGroupAddon addonType="prepend">
                                 <InputGroupText><i className="fa fa-clock-o"></i></InputGroupText>
                         </InputGroupAddon>
-                        <Input type="text" id="lte" name="lte" placeholder="now" onChange={(e) => this._handleOnChange(e, 'lte')} required/>
+                        <Input type="text" id="lte" name="lte" placeholder="now" onChange={(e) => this._onChangeHandler(e, 'lte')} required/>
                           </InputGroup>
                       </Col>
                     </FormGroup>: null}
@@ -312,17 +342,21 @@ class Dashboard extends Component {
                 </CardBody>
 
                 <CardFooter>
-                  <ButtonDropdown className="mr-1" isOpen={this.state.dropdownOpen[18]} toggle={() => { this.toggle(18); }}>
-                    <DropdownToggle caret color="primary">
-                        Export Data
-                    </DropdownToggle>
-                    <DropdownMenu>
-                      <DropdownItem onClick={(e) => this._exportData(e, 'csv')}>Export CSV </DropdownItem>
-                      <DropdownItem onClick={(e) => this._exportData(e, 'mongo')}>Export MongoDB</DropdownItem>
-                      <DropdownItem onClick={(e) => this._exportData(e, 'sql')}>Export SQL</DropdownItem>
-                    </DropdownMenu>
-                  </ButtonDropdown>&nbsp; &nbsp; 
-                  {this.state.hideDataButton}
+                  {this.state.hideDataButton}&nbsp; &nbsp; 
+                  <Button onClick={(e) => this._onClickHandler(e, 'doc_count')} color="primary">{this.state.countText}</Button>&nbsp; &nbsp; 
+                  {this.state.loading ? <ReactLoading className="float-right" type={'bars'} color={'#3498db'} height={42} width={42} /> : null}
+                  
+                  {this.state.loading ? null : 
+                    <ButtonDropdown className="mr-1 float-right" isOpen={this.state.dropdownOpen[18]} toggle={() => { this.toggle(18); }}>
+                      <DropdownToggle caret color="primary">
+                          Export Data
+                      </DropdownToggle>
+                      <DropdownMenu>
+                        <DropdownItem onClick={(e) => this._onClickHandler(e, 'csv')}>Export CSV </DropdownItem>
+                        <DropdownItem onClick={(e) => this._onClickHandler(e, 'mongo')}>Export MongoDB</DropdownItem>
+                        <DropdownItem onClick={(e) => this._onClickHandler(e, 'sql')}>Export SQL</DropdownItem>
+                      </DropdownMenu>
+                    </ButtonDropdown> } &nbsp; &nbsp; 
                 </CardFooter>
               </Card>
             </Col>
@@ -334,7 +368,7 @@ class Dashboard extends Component {
             <Col md="12">
               <Card>
                 <CardHeader style={cardHeaderStyle}>
-                  <i className="fa fa-tasks"></i><strong>Data </strong> History
+                  <i className="icon-grid"></i><strong>Data </strong> History
                 </CardHeader>
                 <CardBody>
                 
