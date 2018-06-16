@@ -22,6 +22,9 @@ def scroll_data(es_connection, es_hosts, es_timeout, search_args):
     total_hits = page['hits']['total']
     dataFrame = pd.DataFrame()
     headers_written = False
+    if data:
+        dataFrame = dataFrame.append(extract_data(data=data, write_headers=(not headers_written)))
+        headers_written = True
     while True:
         page = es.scroll(scroll_id=sid, scroll='{}m'.format(es_timeout))
         data, sid = get_data_page(page)

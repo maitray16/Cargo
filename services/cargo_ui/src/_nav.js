@@ -2,7 +2,7 @@ export default {
   items: [
     {
       name: 'Swagger Docs',
-      url: 'https://github.com/maitray16/Cargo',
+      url: 'http://192.168.99.100/swagger',
       icon: 'icon-docs',
       variant: 'success',
     },

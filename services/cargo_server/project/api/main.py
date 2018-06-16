@@ -21,19 +21,19 @@ def connect_elastic():
     """ Start Page - Check for connection to elasticsearch. 
     TODO => Add authentication and SSL Support """
     data = request.get_json()
-    response_object = {'status': 'fail', 'data': 'Invalid Params'}
-    if not data:
-        return jsonify(response_object), 400
+    response_object = {'status': 'success', 'data': 'true'}
+    # if not data:
+    #     return jsonify(response_object), 400
     host = data.get("host")
     try:
         es = _get_connection(host)
         if es.ping():
             response_object['status'] = 'success',
-            response_object['data'] == es.ping()
+            response_object['data'] = 'True'
             return jsonify(response_object), 200
     except:
         response_object['status'] = 'fail',
-        response_object['data'] = False
+        response_object['data'] = 'False'
         return jsonify(response_object), 400
 
 
