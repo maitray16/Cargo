@@ -14,9 +14,9 @@ export default {
     
     },
     {
-      name: 'Mirage',
+      name: 'Monitoring',
       url: 'https://github.com/maitray16/Cargo',
-      icon: 'fa fa-code',
+      icon: 'icon-rocket',
       variant: 'success',
     
     }
