@@ -1,13 +1,5 @@
 version: '3.4'
 
-# networks:
-#   monitor-net:
-#     driver: bridge
-
-# volumes:
-#     prometheus_data: {}
-#     grafana_data: {}
-
 services:
 
   cargo_ui:
