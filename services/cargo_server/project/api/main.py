@@ -111,15 +111,15 @@ def export_data():
     export_type = data.get("type")
     es = _get_connection(host)
     
-    audit_item = {
-        "index": index,
-        "host": host,
-        "query": query,
-        "fields": fields,
-        "type": export_type
-    }
+    # audit_item = {
+    #     "index": index,
+    #     "host": host,
+    #     "query": query,
+    #     "fields": fields,
+    #     "type": export_type
+    # }
 
-    client.insert_one(audit_item)
+    # client.insert_one(audit_item)
 
     args = dict(
         index=index,
