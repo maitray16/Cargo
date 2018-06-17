@@ -8,6 +8,8 @@ import DefaultFooter from './DefaultFooter';
 import FileDownload from 'react-file-download';
 import ReactLoading from 'react-loading';
 import 'loaders.css/src/animations/line-scale.scss';
+import ReactTable from "react-table";
+import 'react-table/react-table.css'
 
 import {Card, CardBody, CardFooter, Button, Container, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
   InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem, Row } from 'reactstrap';
@@ -36,6 +38,7 @@ class Dashboard extends Component {
     fieldValue: null,
     gte: '',
     lte: '',
+    auditData: [],
     editorString: '{\n\t "query": {\n\t\t"match_all": {} \n\t}\n}',
     isTimeRangeVisible: false,
     hideData: false,
@@ -47,11 +50,23 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
     this._getIndexList();
+    this._getAuditData();
     this.toggle = this.toggle.bind(this);
     this._onChangeHandler = this._onChangeHandler.bind(this);
     this._onClickHandler = this._onClickHandler.bind(this);
   }
 
+  _getAuditData(){
+    axios.get('http://192.168.99.100/cargo/audit')
+    .then(res => {
+      this.setState({
+        auditData: res.data.data
+      });
+    })
+    .catch(error => {
+      console.log(error);
+    }) 
+  }
 
   _getIndexList(){
     let index = [];
@@ -189,6 +204,22 @@ class Dashboard extends Component {
   }
 
   render(){
+    
+    const columns = [
+      {
+      Header: 'Index',
+      accessor: 'index' // String-based value accessors!
+      }, {
+      Header: 'Query',
+      accessor: 'query'
+      }, {
+      Header: 'Type',
+      accessor: 'type'
+      }, {
+      Header: 'Fields',
+      accessor: 'fields'
+    }]
+
     return (
     
       <div className="app">
@@ -371,7 +402,11 @@ class Dashboard extends Component {
                   <i className="icon-grid"></i><strong>Data </strong> History
                 </CardHeader>
                 <CardBody>
-                
+                  <ReactTable
+                    data={this.state.auditData}
+                    columns={columns}
+                    defaultPageSize={10}
+                  />
                 </CardBody>
               </Card>
             </Col>

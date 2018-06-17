@@ -5,9 +5,10 @@ import itertools
 import pandas as pd
 import json
 from pymongo import MongoClient
+from bson import json_util
 
 main_blueprint = Blueprint('main', __name__)
-client = MongoClient('192.168.99.100', 27017)
+client = MongoClient('192.168.99.100', 27017).cargo.audit
 
 def _get_connection(host):
     """ Maintains open connections to elasticsearch """
@@ -109,6 +110,16 @@ def export_data():
     fields = data.get("fields")
     export_type = data.get("type")
     es = _get_connection(host)
+    
+    audit_item = {
+        "index": index,
+        "host": host,
+        "query": query,
+        "fields": fields,
+        "type": export_type
+    }
+
+    client.insert_one(audit_item)
 
     args = dict(
         index=index,
@@ -130,3 +141,12 @@ def export_data():
 @main_blueprint.route('/cargo/ping', methods=["GET"])
 def ping():
     return jsonify({'status': 'success', 'data': 'Pong!!'})
+
+
+@main_blueprint.route('/cargo/audit', methods=["GET"])
+def get_audit():
+    output = []
+    for q in client.find({}):
+        output.append({'index': q['index'], 'fields':q['fields'], 'type': q['type'] ,'query': q['query'] })
+    return jsonify({'status': 'success', 'data': output})
+        
