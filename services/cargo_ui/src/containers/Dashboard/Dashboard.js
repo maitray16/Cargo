@@ -74,12 +74,9 @@ class Dashboard extends Component {
       host:this.state.host
     })
     .then(res => {
-      index = res.data.data.map((item) => {
-        return item;
-      });
-      this.setState({
-        indexList: index
-      });
+        this.setState({
+          indexList: res.data.data
+        })
     })
     .catch(error => {
       console.log(error);
@@ -99,13 +96,10 @@ class Dashboard extends Component {
     axios.post('http://192.168.99.100/cargo/mapping',{ 
       host:this.state.host,
       index: index
-    })
-    .then(res => {
-      res.data.data.forEach(item => {
-        this.setState({ 
-          fieldList: this.state.fieldList.concat([item])
-        })
-      });
+    }).then(res => {
+      this.setState({
+        fieldList: res.data.data
+      })
     })
     .catch(error => {
       console.log(error);
@@ -345,8 +339,8 @@ class Dashboard extends Component {
                           fontSize={14}
                           editorProps={{$blockScrolling: true}}
                           setOptions={{
-                            enableBasicAutocompletion: false,
-                            enableLiveAutocompletion: false,
+                            enableBasicAutocompletion: true,
+                            enableLiveAutocompletion: true,
                             enableSnippets: false,
                             showLineNumbers: true,
                             tabSize: 2
