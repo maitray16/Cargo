@@ -1,14 +1,17 @@
 from flask import Blueprint, jsonify, request, g, send_file, make_response
 from elasticsearch import Elasticsearch
 from project.api.es_utils import scroll_data
-import itertools
-import pandas as pd
-import json
 from pymongo import MongoClient
 from bson import json_util
+import pandas as pd
+import itertools
+import random
+import string
+import json
 
 main_blueprint = Blueprint('main', __name__)
-client = MongoClient('192.168.99.100', 27017).cargo.audit
+client = MongoClient('192.168.99.100', 27017).cargo
+
 
 def _get_connection(host):
     """ Maintains open connections to elasticsearch """
@@ -20,7 +23,7 @@ def _get_connection(host):
 @main_blueprint.route('/cargo/connect', methods=["POST"])
 def connect_elastic():
     """ Start Page - Check for connection to elasticsearch. 
-    TODO => Add authentication and SSL Support """
+    TODO => 1. Add authentication and SSL Support 2. Handling connection failures """
     data = request.get_json()
     response_object = {'status': 'fail', 'data': 'true'}
     if not data:
@@ -40,7 +43,8 @@ def connect_elastic():
 
 @main_blueprint.route('/cargo/index', methods=["POST"])
 def get_index_list():
-    """ Fetches list of indexes from elasticsearch """
+    """ Fetches list of indexes from elasticsearch
+    TODO => 1. Handling connection failures """
     data = request.get_json()
     response_object = {'status': 'fail', 'data': 'Invalid Params'}
     if not data:
@@ -59,7 +63,8 @@ def get_index_list():
 
 @main_blueprint.route('/cargo/doc_count', methods=["POST"])
 def get_doc_count():
-    """ Queries for doc_count for given query elasticsearch """
+    """ Queries for doc_count for given query elasticsearch
+    TODO => 1. Handling connection failures """
     data = request.get_json()
     response_object = {'status': 'fail', 'data': 'Invalid Params'}
     if not data:
@@ -80,7 +85,8 @@ def get_doc_count():
 
 @main_blueprint.route('/cargo/mapping', methods=["POST"])
 def get_mapping():
-    """ Fetches list of fields/mappings from elasticsearch """
+    """ Fetches list of fields/mappings from elasticsearch 
+    TODO => 1. Handling connection failures """
     data = request.get_json()
     response_object = {'status': 'fail', 'data': 'Invalid Params'}
     if not data:
@@ -101,9 +107,11 @@ def get_mapping():
 
 @main_blueprint.route('/cargo/export', methods=["POST"])
 def export_data():
+    """ TODO => 1. Handling connection failures 2. Handling query failues
+    3. Parallel processing of queries (in case of 1 shard - break down timerange query) """
+
     result_dataframe = pd.DataFrame()
     data = request.get_json()
-    #handling query syntax failures from elasticsearch and passing along to client
     host = data.get("host")
     index = data.get("index")
     query = data.get("query")
@@ -131,11 +139,29 @@ def export_data():
     result_dataframe = scroll_data(
         es_connection=es, es_hosts=host, es_timeout=60, search_args=args)
 
-    response = make_response(result_dataframe.to_csv())
-    cd = 'attachment; filename=mycsv.csv'
-    response.headers['Content-Disposition'] = cd
-    response.mimetype = 'text/csv'
-    return response
+    if export_type == 'csv':
+        response = make_response(result_dataframe.to_csv())
+        cd = 'attachment; filename=mycsv.csv'
+        response.headers['Content-Disposition'] = cd
+        response.mimetype = 'text/csv'
+        return response
+    
+    elif export_type == 'mongo':
+        collection_name = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(5))
+        data_json = json.loads(result_dataframe.to_json(orient='records'))
+        client.collection_name.remove()
+        client.collection_name.insert(data_json)
+        
+        data_string = "Database URL - 192.168.99.100" + '\n' + "Port - 27017" + '\n' + "Collection Name : " + collection_name + '\n' + "Fields - " + str(list(result_dataframe))
+
+        response = make_response(data_string)
+        cd = 'attachment; filename=mytxt.txt'
+        response.headers['Content-Disposition'] = cd
+        response.mimetype = 'text/plain'
+        return response
+        
+
+        
 
 
 @main_blueprint.route('/cargo/ping', methods=["GET"])
@@ -143,10 +169,10 @@ def ping():
     return jsonify({'status': 'success', 'data': 'Pong!!'})
 
 
-@main_blueprint.route('/cargo/audit', methods=["GET"])
-def get_audit():
-    output = []
-    for q in client.find({}):
-        output.append({'index': q['index'], 'fields':q['fields'], 'type': q['type'] ,'query': q['query'] })
-    return jsonify({'status': 'success', 'data': output})
+# @main_blueprint.route('/cargo/audit', methods=["GET"])
+# def get_audit():
+#     output = []
+#     for q in client.find({}):
+#         output.append({'index': q['index'], 'fields':q['fields'], 'type': q['type'] ,'query': q['query'] })
+#     return jsonify({'status': 'success', 'data': output})
         

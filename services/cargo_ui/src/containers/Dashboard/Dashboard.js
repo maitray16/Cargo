@@ -9,8 +9,7 @@ import FileDownload from 'react-file-download';
 import ReactLoading from 'react-loading';
 import 'loaders.css/src/animations/line-scale.scss';
 import ReactTable from "react-table";
-import 'react-table/react-table.css'
-import logo from '../../assets/img/package-64.png';
+import 'react-table/react-table.css';
 
 import {Card, CardBody, CardFooter, Button, Container, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
   InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem, Row } from 'reactstrap';
@@ -51,23 +50,23 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
     this._getIndexList();
-    this._getAuditData();
+    // this._getAuditData();
     this.toggle = this.toggle.bind(this);
     this._onChangeHandler = this._onChangeHandler.bind(this);
     this._onClickHandler = this._onClickHandler.bind(this);
   }
 
-  _getAuditData(){
-    axios.get('http://192.168.99.100/cargo/audit')
-    .then(res => {
-      this.setState({
-        auditData: res.data.data
-      });
-    })
-    .catch(error => {
-      console.log(error);
-    }) 
-  }
+  // _getAuditData(){
+  //   axios.get('http://192.168.99.100/cargo/audit')
+  //   .then(res => {
+  //     this.setState({
+  //       auditData: res.data.data
+  //     });
+  //   })
+  //   .catch(error => {
+  //     console.log(error);
+  //   }) 
+  // }
 
   _getIndexList(){
     axios.post('http://192.168.99.100/cargo/index',{ 
@@ -156,7 +155,13 @@ class Dashboard extends Component {
           type: tag
           }).then(res => {
             this.setState({loading: false})
-            FileDownload(res.data, this.state.indexValue + "-" + this._generateID() + ".csv");
+            if(tag === 'csv'){
+              FileDownload(res.data, this.state.indexValue + "-" + this._generateID() + ".csv");
+            }
+            else if(tag === 'mongo'){
+              FileDownload(res.data, this.state.indexValue + "-" + this._generateID() + ".txt");
+            }
+            
           }).catch(error => {
             console.log(error);
           })
@@ -225,7 +230,7 @@ class Dashboard extends Component {
             <AppSidebarNav navConfig={navigation} {...this.props} />
           </AppSidebar>
           <main className="main">
-            <Container fluid style={{marginTop: '1%' }}>
+            <Container fluid style={{marginTop: '2%' }}>
         
          <div className="animated fadeIn">
       
@@ -396,11 +401,7 @@ class Dashboard extends Component {
                   <i className="icon-grid"></i><strong>Data </strong> History
                 </CardHeader>
                 <CardBody>
-                  <ReactTable
-                    data={this.state.auditData}
-                    columns={columns}
-                    defaultPageSize={5}
-                  />
+               
                 </CardBody>
               </Card>
             </Col>

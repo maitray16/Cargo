@@ -7,7 +7,7 @@ def extract_data(data, write_headers):
         rows = [datumn['_source'] for datumn in list(group)]
         df = pd.DataFrame.from_dict(rows)
         return df
-
+       
 
 def get_data_page(page):
     data = page['hits']['hits']
