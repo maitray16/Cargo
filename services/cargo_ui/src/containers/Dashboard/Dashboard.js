@@ -10,6 +10,7 @@ import ReactLoading from 'react-loading';
 import 'loaders.css/src/animations/line-scale.scss';
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
+import logo from '../../assets/img/package-64.png';
 
 import {Card, CardBody, CardFooter, Button, Container, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
   InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem, Row } from 'reactstrap';
@@ -69,7 +70,6 @@ class Dashboard extends Component {
   }
 
   _getIndexList(){
-    let index = [];
     axios.post('http://192.168.99.100/cargo/index',{ 
       host:this.state.host
     })
@@ -225,10 +225,10 @@ class Dashboard extends Component {
             <AppSidebarNav navConfig={navigation} {...this.props} />
           </AppSidebar>
           <main className="main">
-            <Container fluid style={{marginTop: '2%' }}>
+            <Container fluid style={{marginTop: '1%' }}>
         
          <div className="animated fadeIn">
-            
+      
             <Row>
             {/* Download card */}
             <Col md="12">
@@ -399,7 +399,7 @@ class Dashboard extends Component {
                   <ReactTable
                     data={this.state.auditData}
                     columns={columns}
-                    defaultPageSize={10}
+                    defaultPageSize={5}
                   />
                 </CardBody>
               </Card>

@@ -21,11 +21,11 @@ class Connect extends Component {
     .then(res => {
       console.log(res);
       console.log(res.data.status);
-      if(res.data.status === 'success'){
+      // if(res.data.status === 'success'){
         this.props.history.push('/dashboard')
-      }
-      else{
-      }
+      //  }
+      // else{
+      // }
      
     })
     .catch(error => {
