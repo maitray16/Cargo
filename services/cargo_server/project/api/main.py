@@ -147,7 +147,7 @@ def export_data():
         return response
     
     elif export_type == 'mongo':
-        collection_name = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(5))
+        collection_name = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(5))
         data_json = json.loads(result_dataframe.to_json(orient='records'))
         client.collection_name.remove()
         client.collection_name.insert(data_json)
