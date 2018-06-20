@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {AppSidebar, AppSidebarForm, AppSidebarHeader, AppSidebarNav, AppSwitch } from '@coreui/react';
+import {AppSidebar, AppSidebarForm, AppSidebarHeader, AppSidebarNav } from '@coreui/react';
 import navigation from '../../../_nav';
 
 const appSidebarColor = '#1e272e';

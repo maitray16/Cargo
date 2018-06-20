@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { AppSwitch } from '@coreui/react';
-import {Card, CardBody, CardFooter, Button, Container, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
-    InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem, Row } from 'reactstrap';
-  
-import axios from 'axios';
+import { inject, observer } from 'mobx-react';
+import {Card, CardBody, CardFooter, Button, CardHeader, Col, Form, FormGroup, Label, Input, InputGroup,
+    InputGroupText, InputGroupAddon, ButtonDropdown, DropdownMenu, DropdownToggle, DropdownItem } from 'reactstrap';
+
 import AceEditor from 'react-ace';
-import FileDownload from 'react-file-download';
 import ReactLoading from 'react-loading';
 import Select from 'react-select';
 
@@ -18,98 +17,33 @@ const cardHeaderColor = '#52616a';
 const cardHeaderTextColor = '#fff';
 const cardHeaderStyle = {background: cardHeaderColor, color: cardHeaderTextColor};
 
+@inject('exportStore')
+@observer
 class Export extends Component {
     state = {
-        dropdownOpen: new Array(19).fill(false),
-        host: 'http://172.16.123.1:9200',
-        indexList: [],
-        fieldList: [],
-        indexValue: null,
-        fieldValue: null,
         gte: '',
         lte: '',
-        auditData: [],
-        editorString: '{\n\t "query": {\n\t\t"match_all": {} \n\t}\n}',
-        isTimeRangeVisible: false,
         hideData: false,
-        countText: 'Check doc count',
         loading: false,
         hideDataButton: <Button outline color="secondary" onClick={(e) => this._onClickHandler(e, 'data_obfs_button')}>Enable Data Obfuscation</Button>
       }
 
       constructor(props) {
         super(props);
-        this._getIndexList();
-        this.toggle = this.toggle.bind(this);
-        this._onChangeHandler = this._onChangeHandler.bind(this);
-        this._onClickHandler = this._onClickHandler.bind(this);
+          this.props.exportStore.getIndexList();
+          this.props.exportStore.toggle()
+          this._onChangeHandler = this._onChangeHandler.bind(this);
+          this._onClickHandler = this._onClickHandler.bind(this);
       }
 
-      _getIndexList(){
-        axios.post('http://192.168.99.100/cargo/index',{ 
-          host:this.state.host
-        })
-        .then(res => {
-            this.setState({
-              indexList: res.data.data
-            })
-        })
-        .catch(error => {
-          console.log(error);
-        }) 
-      }
-    
-      _generateID(){
-        let text = "";
-        let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        for (var i = 0; i < 4; i++)
-          text += possible.charAt(Math.floor(Math.random() * possible.length));
-        return text;
-      }
-    
-      _getMappingList(index){
-        // Gets mapping for only one index
-        axios.post('http://192.168.99.100/cargo/mapping',{ 
-          host:this.state.host,
-          index: index
-        }).then(res => {
-          this.setState({
-            fieldList: res.data.data
-          })
-        })
-        .catch(error => {
-          console.log(error);
-        }) 
-      }
-    
-      toggle(i) {
-        const newArray = this.state.dropdownOpen.map((element, index) => { return (index === i ? !element : false); });
-        this.setState({
-          dropdownOpen: newArray,
-        });
-      }
-    
       _onClickHandler(e, tag){
         switch(tag){
           case 'app-switch':
-            if(this.state.isTimeRangeVisible)
-              this.setState({isTimeRangeVisible: false})
-            else
-              this.setState({isTimeRangeVisible: true})
+            this.props.exportStore.timeRangeToggle();
             break;
           
           case 'doc_count':
-            this.setState({countText: 'Crunching some numbers..'})
-            axios.post('http://192.168.99.100/cargo/doc_count',{ 
-              host: this.state.host,
-              index: this.state.indexValue
-              }).then(res => {
-                this.setState({
-                countText: 'Doc Count - ' + res.data.data
-                  })
-                }).catch(error => {
-                console.log(error);
-              }) 
+            this.props.exportStore.getDocCount()
             break;
     
           case 'data_obfs_button':
@@ -123,26 +57,8 @@ class Export extends Component {
           case 'csv':
           case 'mongo':
           case 'sql':
-            this.setState({loading: true})
-            axios.post('http://192.168.99.100/cargo/export',{ 
-              host: this.state.host,
-              index: this.state.indexValue.split(','),
-              fields: this.state.fieldValue.split(','),
-              query: this.state.editorString,
-              type: tag
-              }).then(res => {
-                this.setState({loading: false})
-                if(tag === 'csv'){
-                  FileDownload(res.data, this.state.indexValue + "-" + this._generateID() + ".csv");
-                }
-                else if(tag === 'mongo'){
-                  FileDownload(res.data, this.state.indexValue + "-" + this._generateID() + "-instructions.txt");
-                }
-                
-              }).catch(error => {
-                console.log(error);
-              })
-            break;
+              this.props.exportStore.export(tag);
+              break;
           
           default:
               break;
@@ -158,21 +74,14 @@ class Export extends Component {
             this.setState({lte: e.target.value})
             break;
           case 'index-select':
-            this.setState({indexValue: e});
-              if(e === ''){
-                this.setState({fieldList: []})
-              }
-              else{
-              this.setState({fieldList: []})
-              this._getMappingList(e);
-              }
-            break;
+              this.props.exportStore.setIndex(e);
+              break;
           case 'mapping-select':
-            this.setState({fieldValue: e});
-            break;
+              this.props.exportStore.setMapping(e);
+              break;
           case 'editor-value':
-            this.setState({editorString: e});
-            break;
+              this.props.exportStore.setEditorString(e);
+              break;
           
           default:
             break;
@@ -202,11 +111,11 @@ class Export extends Component {
                     <Select
                         id="index-select"
                         ref={(ref) => { this.select = ref; }}
-                        options={this.state.indexList}
+                        options={this.props.exportStore.indexList}
                         simpleValue
                         clearable
                         name="select-index"
-                        value={this.state.indexValue}
+                        value={this.props.exportStore.indexValue}
                         onChange={(e) => this._onChangeHandler(e, 'index-select')}
                         searchable
                         labelKey="index"
@@ -224,12 +133,12 @@ class Export extends Component {
                     <Select 
                         id="mapping-select"
                         ref={(ref) => { this.select = ref; }}
-                        options={this.state.fieldList}
+                        options={this.props.exportStore.fieldList}
                         simpleValue
                         clearable
                         multi
                         name="select-mapping"
-                        value={this.state.fieldValue}
+                        value={this.props.exportStore.fieldValue}
                         onChange={(e) => this._onChangeHandler(e, 'mapping-select')}
                         searchable
                         labelKey="field"
@@ -259,7 +168,7 @@ class Export extends Component {
                   </FormGroup>
 
 
-                   { this.state.isTimeRangeVisible ? 
+                   { this.props.exportStore.isTimeRangeVisible ? 
                    <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="gte">GTE - @timestamp</Label>
@@ -274,7 +183,7 @@ class Export extends Component {
                     </Col>
                   </FormGroup> : null}
                   
-                  { this.state.isTimeRangeVisible ? null : 
+                  { this.props.exportStore.isTimeRangeVisible ? null : 
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="custom-query">Custom Query</Label>
@@ -283,7 +192,7 @@ class Export extends Component {
                       <AceEditor
                         mode="json"
                         theme="monokai"
-                        value={this.state.editorString}
+                        value={this.props.exportStore.editorString}
                         onChange={(e) => this._onChangeHandler(e, 'editor-value')}
                         name="editor"
                         fontSize={14}
@@ -298,7 +207,7 @@ class Export extends Component {
                       </Col>
                     </FormGroup>}
 
-                  { this.state.isTimeRangeVisible ?
+                  { this.props.exportStore.isTimeRangeVisible ?
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="lte">LTE - @timestamp</Label>
@@ -318,18 +227,17 @@ class Export extends Component {
 
               <CardFooter>
                 {this.state.hideDataButton}&nbsp; &nbsp; 
-                <Button onClick={(e) => this._onClickHandler(e, 'doc_count')} color="primary">{this.state.countText}</Button>&nbsp; &nbsp; 
-                {this.state.loading ? <ReactLoading className="float-right" type={'bars'} color={'#3498db'} height={42} width={42} /> : null}
+                <Button onClick={(e) => this._onClickHandler(e, 'doc_count')} color="primary">{this.props.exportStore.countText}</Button>&nbsp; &nbsp; 
+                {this.props.exportStore.loading ? <ReactLoading className="float-right" type={'bars'} color={'#3498db'} height={42} width={42} /> : null}
                 
                 {this.state.loading ? null : 
-                  <ButtonDropdown className="mr-1 float-right" isOpen={this.state.dropdownOpen[18]} toggle={() => { this.toggle(18); }}>
+                  <ButtonDropdown className="mr-1 float-right" isOpen={this.props.exportStore.dropdownOpen[18]} toggle={() => { this.props.exportStore.toggle(18); }}>
                     <DropdownToggle caret color="primary">
                         Export Data
                     </DropdownToggle>
                     <DropdownMenu>
                       <DropdownItem onClick={(e) => this._onClickHandler(e, 'csv')}>Export CSV </DropdownItem>
                       <DropdownItem onClick={(e) => this._onClickHandler(e, 'mongo')}>Export MongoDB</DropdownItem>
-                      <DropdownItem onClick={(e) => this._onClickHandler(e, 'sql')}>Export SQL</DropdownItem>
                     </DropdownMenu>
                   </ButtonDropdown> } &nbsp; &nbsp; 
               </CardFooter>

@@ -1,38 +1,28 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { inject, observer } from 'mobx-react';
+import { post } from '../../apiUtils';
 import { Button, Card, CardBody, CardGroup, Col, Container, Alert, Input, InputGroup, Row } from 'reactstrap';
 import logo from '../../assets/img/package.svg';
 
+@inject('hostStore')
+@observer
 class Connect extends Component {
-  state = {
-    host: '',
-    flag: false
-  }
-
+  
   handleChange = event => {
-    this.setState({ host: event.target.value });
+    this.props.hostStore.setHost(event.target.value);
   }
 
   handleSubmit = event => {
     event.preventDefault();
-    axios.post('http://192.168.99.100/cargo/connect',{ 
-      host:this.state.host
+    post('/connect', {host: this.props.hostStore.host})
+    .then(data => {
+        this.props.history.push('/dashboard');
     })
-    .then(res => {
-      console.log(res);
-      console.log(res.data.status);
-      // if(res.data.status === 'success'){
-        this.props.history.push('/dashboard')
-      //  }
-      // else{
-      // }
+    .catch((err) => {
+        throw err;
+    })
      
-    })
-    .catch(error => {
-      console.log(error);
-    })
   }
-
 
  componentDidMount(){}
 
@@ -55,7 +45,7 @@ class Connect extends Component {
                     <Row>
                       <Col xs="12">
                         <Button onClick={this.handleSubmit} size="md" color="primary" className="px-4">Connect</Button>
-                        {this.state.flag ? <Alert color="danger">Connection Failed</Alert> : null}
+                        <Alert color="danger">Connection Failed</Alert>
                       </Col>
                     </Row>
 
