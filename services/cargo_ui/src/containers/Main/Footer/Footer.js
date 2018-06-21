@@ -3,7 +3,7 @@ import { AppFooter } from '@coreui/react';
 import DefaultFooter from './DefaultFooter';
 
 
-class Footer extends Component {
+export default class Footer extends Component {
     render(){
         return(
             <AppFooter>
@@ -13,5 +13,4 @@ class Footer extends Component {
     }
 }
 
-export default Footer;
 

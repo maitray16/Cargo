@@ -19,7 +19,7 @@ const cardHeaderStyle = {background: cardHeaderColor, color: cardHeaderTextColor
 
 @inject('mainStore')
 @observer
-class Export extends Component {
+export default class Export extends Component {
     
     state = {
         gte: '',
@@ -234,5 +234,3 @@ class Export extends Component {
         );
       }
 }
-
-export default Export;

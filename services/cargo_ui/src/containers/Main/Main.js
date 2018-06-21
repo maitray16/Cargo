@@ -4,13 +4,15 @@ import Connect from './Connect/Connect';
 import Export from './Export/Export';
 import Sidebar from './Sidebar/Sidebar';
 import Footer from './Footer/Footer';
+import DataHistory from './DataHistory/DataHistory';
 import NotificationSystem from 'react-notification-system';
 import { autorun } from "mobx";
 import { inject, observer } from "mobx-react";
 
+
 @inject("commonStore")
 @observer
-class Main extends Component {
+export default class Main extends Component {
 
   mobxHook = autorun(() => {
     if (this.props.commonStore.snackMessage.message !== null) {
@@ -47,6 +49,12 @@ class Main extends Component {
                   <Export /> 
                 </Col>
               </Row>
+
+              <Row>
+                <Col md="12">
+                  <DataHistory /> 
+                </Col>
+              </Row>
    
               </div>
               </Container>
@@ -57,5 +65,3 @@ class Main extends Component {
     );
   }
 }
-
-export default Main;

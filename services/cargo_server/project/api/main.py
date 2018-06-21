@@ -27,7 +27,7 @@ def connect_elastic():
     data = request.get_json()
     response_object = {'status': 'fail', 'data': 'true'}
     if not data:
-         return jsonify(response_object), 400
+        return jsonify(response_object), 400
     host = data.get("host")
     try:
         es = _get_connection(host)
@@ -105,20 +105,21 @@ def get_mapping():
     except:
         return jsonify(response_object), 400
 
+
 @main_blueprint.route('/cargo/export', methods=["POST"])
 def export_data():
     """ TODO => 1. Handling connection failures 2. Handling query failues
     3. Parallel processing of queries (in case of 1 shard - break down timerange query) """
-
     result_dataframe = pd.DataFrame()
     data = request.get_json()
+
     host = data.get("host")
     index = data.get("index")
     query = data.get("query")
     fields = data.get("fields")
     export_type = data.get("type")
     es = _get_connection(host)
-    
+
     # audit_item = {
     #     "index": index,
     #     "host": host,
@@ -145,23 +146,23 @@ def export_data():
         response.headers['Content-Disposition'] = cd
         response.mimetype = 'text/csv'
         return response
-    
+
     elif export_type == 'mongo':
-        collection_name = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(5))
+        collection_name = ''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.ascii_lowercase + string.digits)
+                                  for _ in range(5))
         data_json = json.loads(result_dataframe.to_json(orient='records'))
         client.collection_name.remove()
         client.collection_name.insert(data_json)
-        
-        data_string = "Database URL - 192.168.99.100" + '\n' + "Port - 27017" + '\n' + "Collection Name : " + collection_name + '\n' + "Fields - " + str(list(result_dataframe))
+
+        data_string = "Database URL - 192.168.99.100" + '\n' + "Port - 27017" + '\n' + "Collection Name : " + collection_name + '\n' + "Fields - " + str(
+            list(result_dataframe))
 
         response = make_response(data_string)
         cd = 'attachment; filename=mytxt.txt'
         response.headers['Content-Disposition'] = cd
         response.mimetype = 'text/plain'
         return response
-        
-
-        
 
 
 @main_blueprint.route('/cargo/ping', methods=["GET"])
@@ -169,10 +170,9 @@ def ping():
     return jsonify({'status': 'success', 'data': 'Pong!!'})
 
 
-# @main_blueprint.route('/cargo/audit', methods=["GET"])
-# def get_audit():
-#     output = []
-#     for q in client.find({}):
-#         output.append({'index': q['index'], 'fields':q['fields'], 'type': q['type'] ,'query': q['query'] })
-#     return jsonify({'status': 'success', 'data': output})
-        
+@main_blueprint.route('/cargo/audit', methods=["GET"])
+def get_audit():
+    output = []
+    for q in client.find({}):
+        output.append({'index': q['index'], 'fields':q['fields'], 'type': q['type'] ,'query': q['query'] })
+    return jsonify({'status': 'success', 'data': output})

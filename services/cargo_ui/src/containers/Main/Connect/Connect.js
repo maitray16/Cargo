@@ -26,8 +26,7 @@ export default class Connect extends Component{
                     <div style={{background:'#52616a' }}>
                         <Container fluid>
                         <img src={logo} style={{color: '#FFA000'}} height="60" width="60" alt="Logo"></img>
-                        <p></p>
-                        <h6 className="display-4">Cargo</h6>
+                        <h5 className="display-4">Cargo</h5>
                         </Container>
                     </div>
                 </CardBody>
@@ -37,7 +36,6 @@ export default class Connect extends Component{
                 <Card className="p-4 py-5 d-md-down-none">
                   <CardBody>
                     <h3>Connect to Elastic Host</h3>
-                    <p></p>
                     <InputGroup className="mb-3">
                       <Input onChange={(e) => this._onChangeHandler(e)} name="url" bsSize="lg" type="text" placeholder="Host URL" />
                     </InputGroup>
@@ -45,7 +43,6 @@ export default class Connect extends Component{
                         <Col xs="12">
                         <Button onClick={() => this.props.mainStore.connect()} size="md" color="primary" className="px-4">{this.props.mainStore.connection_state}</Button>&nbsp;&nbsp;
                         <Button onClick={() => this.props.mainStore.reset()} size="md" color="danger" className="px-4">Reset</Button>
-                        <p></p>
                       </Col>
                     </Row>
                   </CardBody>
