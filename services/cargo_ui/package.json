@@ -19,6 +19,7 @@
     "react-dom": "^16.4.1",
     "react-loading": "^2.0.2",
     "react-mobx-notification-system": "^0.1.5",
+    "react-notification-system": "^0.2.17",
     "react-scripts": "1.1.4",
     "react-select": "^1.2.1",
     "react-table": "^6.8.6",

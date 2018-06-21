@@ -17,47 +17,36 @@ const cardHeaderColor = '#52616a';
 const cardHeaderTextColor = '#fff';
 const cardHeaderStyle = {background: cardHeaderColor, color: cardHeaderTextColor};
 
-@inject('exportStore')
+@inject('mainStore')
 @observer
 class Export extends Component {
+    
     state = {
         gte: '',
-        lte: '',
-        hideData: false,
-        loading: false,
-        hideDataButton: <Button outline color="secondary" onClick={(e) => this._onClickHandler(e, 'data_obfs_button')}>Enable Data Obfuscation</Button>
+        lte: ''
       }
 
       constructor(props) {
         super(props);
-          this.props.exportStore.getIndexList();
-          this.props.exportStore.toggle()
-          this._onChangeHandler = this._onChangeHandler.bind(this);
-          this._onClickHandler = this._onClickHandler.bind(this);
+        this.props.mainStore.toggle()
+        this._onChangeHandler = this._onChangeHandler.bind(this);
+        this._onClickHandler = this._onClickHandler.bind(this);
       }
 
       _onClickHandler(e, tag){
         switch(tag){
           case 'app-switch':
-            this.props.exportStore.timeRangeToggle();
+            this.props.mainStore.timeRangeToggle();
             break;
           
           case 'doc_count':
-            this.props.exportStore.getDocCount()
-            break;
-    
-          case 'data_obfs_button':
-            if(!this.state.hideData){
-              this.setState({hideData: true, hideDataButton: <Button color="danger" onClick={(e) => this._onClickHandler(e, 'data_obfs_button')}>Data Obfuscation Enabled</Button>})
-            } else{
-              this.setState({hideData: false, hideDataButton: <Button outline color="secondary" onClick={(e) => this._onClickHandler(e, 'data_obfs_button')}>Enable Data Obfuscation</Button>})
-            }
+            this.props.mainStore.getDocCount()
             break;
     
           case 'csv':
           case 'mongo':
           case 'sql':
-              this.props.exportStore.export(tag);
+              this.props.mainStore.export(tag);
               break;
           
           default:
@@ -74,13 +63,13 @@ class Export extends Component {
             this.setState({lte: e.target.value})
             break;
           case 'index-select':
-              this.props.exportStore.setIndex(e);
+              this.props.mainStore.setIndex(e);
               break;
           case 'mapping-select':
-              this.props.exportStore.setMapping(e);
+              this.props.mainStore.setMapping(e);
               break;
           case 'editor-value':
-              this.props.exportStore.setEditorString(e);
+              this.props.mainStore.setEditorString(e);
               break;
           
           default:
@@ -111,11 +100,11 @@ class Export extends Component {
                     <Select
                         id="index-select"
                         ref={(ref) => { this.select = ref; }}
-                        options={this.props.exportStore.indexList}
+                        options={this.props.mainStore.indexList}
                         simpleValue
                         clearable
                         name="select-index"
-                        value={this.props.exportStore.indexValue}
+                        value={this.props.mainStore.indexValue}
                         onChange={(e) => this._onChangeHandler(e, 'index-select')}
                         searchable
                         labelKey="index"
@@ -133,12 +122,12 @@ class Export extends Component {
                     <Select 
                         id="mapping-select"
                         ref={(ref) => { this.select = ref; }}
-                        options={this.props.exportStore.fieldList}
+                        options={this.props.mainStore.fieldList}
                         simpleValue
                         clearable
                         multi
                         name="select-mapping"
-                        value={this.props.exportStore.fieldValue}
+                        value={this.props.mainStore.fieldValue}
                         onChange={(e) => this._onChangeHandler(e, 'mapping-select')}
                         searchable
                         labelKey="field"
@@ -168,7 +157,7 @@ class Export extends Component {
                   </FormGroup>
 
 
-                   { this.props.exportStore.isTimeRangeVisible ? 
+                   { this.props.mainStore.isTimeRangeVisible ? 
                    <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="gte">GTE - @timestamp</Label>
@@ -183,7 +172,7 @@ class Export extends Component {
                     </Col>
                   </FormGroup> : null}
                   
-                  { this.props.exportStore.isTimeRangeVisible ? null : 
+                  { this.props.mainStore.isTimeRangeVisible ? null : 
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="custom-query">Custom Query</Label>
@@ -192,7 +181,7 @@ class Export extends Component {
                       <AceEditor
                         mode="json"
                         theme="monokai"
-                        value={this.props.exportStore.editorString}
+                        value={this.props.mainStore.editorString}
                         onChange={(e) => this._onChangeHandler(e, 'editor-value')}
                         name="editor"
                         fontSize={14}
@@ -207,7 +196,7 @@ class Export extends Component {
                       </Col>
                     </FormGroup>}
 
-                  { this.props.exportStore.isTimeRangeVisible ?
+                  { this.props.mainStore.isTimeRangeVisible ?
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="lte">LTE - @timestamp</Label>
@@ -226,12 +215,11 @@ class Export extends Component {
               </CardBody>
 
               <CardFooter>
-                {this.state.hideDataButton}&nbsp; &nbsp; 
-                <Button onClick={(e) => this._onClickHandler(e, 'doc_count')} color="primary">{this.props.exportStore.countText}</Button>&nbsp; &nbsp; 
-                {this.props.exportStore.loading ? <ReactLoading className="float-right" type={'bars'} color={'#3498db'} height={42} width={42} /> : null}
-                
-                {this.state.loading ? null : 
-                  <ButtonDropdown className="mr-1 float-right" isOpen={this.props.exportStore.dropdownOpen[18]} toggle={() => { this.props.exportStore.toggle(18); }}>
+                <Button outline color="danger">Enable Data Obfuscation</Button>&nbsp; &nbsp; 
+                <Button onClick={(e) => this._onClickHandler(e, 'doc_count')} color="primary">{this.props.mainStore.countText}</Button>&nbsp; &nbsp; 
+                {this.props.mainStore.loading ? <ReactLoading className="float-right" type={'bars'} color={'#3498db'} height={42} width={42} /> : null}
+                {this.props.mainStore.loading ? null : 
+                  <ButtonDropdown className="mr-1 float-right" isOpen={this.props.mainStore.dropdownOpen[18]} toggle={() => { this.props.mainStore.toggle(18); }}>
                     <DropdownToggle caret color="primary">
                         Export Data
                     </DropdownToggle>

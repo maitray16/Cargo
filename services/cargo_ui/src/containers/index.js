@@ -1,7 +1,5 @@
-import Dashboard from './Dashboard/Dashboard';
-import Connect from './Connect/Connect';
+import Main from './Main/Main';
 export {
-    Connect,
-    Dashboard
+    Main
 };
 
