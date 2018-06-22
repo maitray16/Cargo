@@ -82,7 +82,7 @@ export default class Export extends Component {
             <div className="animated fadeIn">
             <Card>
               <CardHeader style={cardHeaderStyle}>
-              <i className="fa fa-tasks"></i><strong>Download</strong> Information
+              <i className="fa fa-tasks"></i><strong>Export</strong> Data
               <div className="card-header-actions"> 
                 <span className="text-muted"><strong>Custom Query </strong>&nbsp;</span>
                 <AppSwitch onClick={(e) => this._onClickHandler(e, 'app-switch')}className={'float-right mb-0'} variant={'pill'} label color={'success'} size={'sm'} checked/>

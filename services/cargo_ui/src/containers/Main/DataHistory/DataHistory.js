@@ -10,10 +10,6 @@ const cardHeaderStyle = {background: cardHeaderColor, color: cardHeaderTextColor
 @observer
 export default class DataHistory extends Component{
 
-    constructor(props){
-        super(props);
-    }
-
     render(){
         return(
             <div className="animated fadeIn">

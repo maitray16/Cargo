@@ -170,9 +170,9 @@ def ping():
     return jsonify({'status': 'success', 'data': 'Pong!!'})
 
 
-@main_blueprint.route('/cargo/audit', methods=["GET"])
-def get_audit():
-    output = []
-    for q in client.find({}):
-        output.append({'index': q['index'], 'fields':q['fields'], 'type': q['type'] ,'query': q['query'] })
-    return jsonify({'status': 'success', 'data': output})
+# @main_blueprint.route('/cargo/audit', methods=["GET"])
+# def get_audit():
+#     output = []
+#     for q in client.find({}):
+#         output.append({'index': q['index'], 'fields':q['fields'], 'type': q['type'] ,'query': q['query'] })
+#     return jsonify({'status': 'success', 'data': output})

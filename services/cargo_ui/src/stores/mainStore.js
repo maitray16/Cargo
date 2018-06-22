@@ -5,7 +5,7 @@ import fileDownload from 'js-file-download';
 
 class MainStore {
 
-    @observable host = null;
+    @observable host = '';
     @observable connection_state = 'Connect';
     @observable indexValue = null;
     @observable fieldValue = null;
@@ -22,14 +22,15 @@ class MainStore {
     }
 
     @action reset() {
-        this.host = null;
+        this.host = '';
         this.connection_state = 'Connect';
         this.indexValue = null;
         this.fieldValue = null;
         this.indexList = [];
         this.fieldList = [];
         this.countText = 'Check doc count';
-        commonStore.setSnackError("Connection Ended", "Reset");
+        if(this.connection_state === 'Connected')
+            commonStore.setSnackError("Connection Ended", "Reset");
     }
 
     @action setIndex(e) {
