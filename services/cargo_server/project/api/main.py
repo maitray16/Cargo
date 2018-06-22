@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, g, send_file, make_response
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, ConnectionError
 from project.api.es_utils import scroll_data
 from pymongo import MongoClient
 from bson import json_util
@@ -35,9 +35,9 @@ def connect_elastic():
             response_object['status'] = 'success',
             response_object['data'] = 'True'
             return jsonify(response_object), 200
-    except:
+    except Exception as ce:
         response_object['status'] = 'fail',
-        response_object['data'] = 'false'
+        response_object['data'] = ce
         return jsonify(response_object), 400
 
 
@@ -120,16 +120,6 @@ def export_data():
     export_type = data.get("type")
     es = _get_connection(host)
 
-    # audit_item = {
-    #     "index": index,
-    #     "host": host,
-    #     "query": query,
-    #     "fields": fields,
-    #     "type": export_type
-    # }
-
-    # client.insert_one(audit_item)
-
     args = dict(
         index=index,
         scroll='60s',
@@ -140,22 +130,23 @@ def export_data():
     result_dataframe = scroll_data(
         es_connection=es, es_hosts=host, es_timeout=60, search_args=args)
 
+    uid = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)for _ in range(6))
+    
+    client.history.insert_one(data)
+
     if export_type == 'csv':
         response = make_response(result_dataframe.to_csv())
-        cd = 'attachment; filename=mycsv.csv'
-        response.headers['Content-Disposition'] = cd
+        # cd = 'attachment; filename=response.csv'
+        response.headers['Content-Disposition'] = 'attachment; filename='+uid+'.csv'
         response.mimetype = 'text/csv'
         return response
 
     elif export_type == 'mongo':
-        collection_name = ''.join(random.SystemRandom().choice(
-            string.ascii_uppercase + string.ascii_lowercase + string.digits)
-                                  for _ in range(5))
         data_json = json.loads(result_dataframe.to_json(orient='records'))
-        client.collection_name.remove()
-        client.collection_name.insert(data_json)
+        client.uid.remove()
+        client.uid.insert(data_json)
 
-        data_string = "Database URL - 192.168.99.100" + '\n' + "Port - 27017" + '\n' + "Collection Name : " + collection_name + '\n' + "Fields - " + str(
+        data_string = "Database URL - 192.168.99.100" + '\n' + "Port - 27017" + '\n' + "Collection Name : " + uid + '\n' + "Fields - " + str(
             list(result_dataframe))
 
         response = make_response(data_string)
@@ -170,9 +161,9 @@ def ping():
     return jsonify({'status': 'success', 'data': 'Pong!!'})
 
 
-# @main_blueprint.route('/cargo/audit', methods=["GET"])
-# def get_audit():
-#     output = []
-#     for q in client.find({}):
-#         output.append({'index': q['index'], 'fields':q['fields'], 'type': q['type'] ,'query': q['query'] })
-#     return jsonify({'status': 'success', 'data': output})
+@main_blueprint.route('/cargo/history', methods=["GET"])
+def get_audit():
+    output = []
+    for q in client.history.find({}):
+        output.append({'host': q['host'], 'index': q['index'], 'fields': q['fields'], 'type': q['type'], 'query': q['query']})
+    return jsonify({'status': 'success', 'data': output})

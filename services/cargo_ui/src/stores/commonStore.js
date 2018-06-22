@@ -1,9 +1,12 @@
 import { observable, action } from "mobx";
+import mainStore from './mainStore';
+import {get} from '../utils/apiUtils';
 
 class CommonStore {
 
-  @observable
-  snackMessage = {
+  @observable history  = [];
+
+  @observable snackMessage = {
     message: null,
     title: null,
     level: null,
@@ -14,8 +17,7 @@ class CommonStore {
     this.setSnackMessage(message, title , "error" , "tr");
   };
 
-  @action
-  setSnackMessage(
+  @action setSnackMessage(
     message = null,
     title = null,
     level = "success",
@@ -27,6 +29,16 @@ class CommonStore {
       level: level,
       position: position
     };
+  }
+
+  @action getDataHistory(){
+    get('/history')
+    .then(response => {
+        this.history = response.data.data;
+    })
+    .catch((err) => {
+        throw err;
+    })
   }
 
 }

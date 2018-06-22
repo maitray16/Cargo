@@ -25,7 +25,7 @@ export default class Connect extends Component{
                 <CardBody className="text-center">
                     <div style={{background:'#52616a' }}>
                         <Container fluid>
-                        <img className="mb-3"src={logo} height="64" width="64" alt="Logo"></img>
+                        <img className="mb-3"src={logo} height="65" width="65" alt="Logo"></img>
                         <h1>Cargo</h1>
                         </Container>
                     </div>

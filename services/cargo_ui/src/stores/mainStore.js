@@ -57,6 +57,7 @@ class MainStore {
     @action connect() {
         post('/connect', {host: this.host})
         .then(response => {
+            console.log(response);
             this.getIndexList();
             this.connection_state = 'Connected';
         })
@@ -165,7 +166,7 @@ class MainStore {
     _generateID() {
         let text = "";
         let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < 6; i++)
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         return text;
     }
