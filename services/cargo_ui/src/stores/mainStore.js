@@ -13,7 +13,7 @@ class MainStore {
     @observable fieldList = [];
     @observable editorString = '{\n\t "query": {\n\t\t"match_all": {} \n\t}\n}';
     @observable countText = 'Check doc count';
-    @observable isTimeRangeVisible = false;
+    @observable isTimeRangeVisible = true;
     @observable dropdownOpen = new Array(19).fill(false);
     @observable loading = false;
 
