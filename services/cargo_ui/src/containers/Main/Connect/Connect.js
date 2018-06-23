@@ -21,9 +21,9 @@ export default class Connect extends Component{
         <div className="animated fadeIn">
         <Row className="justify-content-center">
             <Col md="3">
-                <Card className="text-white py-5 d-md-down-none" style={{ background:'#52616a' }}>
+                <Card className="text-white py-5 d-md-down-none" style={{ background:'#b2bec3' }}>
                 <CardBody className="text-center">
-                    <div style={{background:'#52616a' }}>
+                    <div style={{background:'#b2bec3' }}>
                         <Container fluid>
                         <img className="mb-3"src={logo} height="65" width="65" alt="Logo"></img>
                         <h1>Cargo</h1>
@@ -37,7 +37,7 @@ export default class Connect extends Component{
                   <CardBody>
                     <h4>Connect to Elastic Host</h4>
                     <InputGroup className="mb-3">
-                      <Input value={this.props.mainStore.host}  onChange={(e) => this._onChangeHandler(e)} name="url" bsSize="lg" type="text" placeholder="Host URL" />
+                      <Input value={this.props.mainStore.host}  onChange={(e) => this._onChangeHandler(e)} name="url" bsSize="lg" type="text" placeholder="Host URL" autoComplete="url"/>
                     </InputGroup>
                     <Row>
                         <Col xs="12">
