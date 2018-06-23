@@ -57,7 +57,6 @@ class MainStore {
     @action connect() {
         post('/connect', {host: this.host})
         .then(response => {
-            console.log(response);
             this.getIndexList();
             this.connection_state = 'Connected';
         })
@@ -142,6 +141,7 @@ class MainStore {
                     } else if (type === 'mongo') {
                         fileDownload(response.data, this.indexValue + "-" + this._generateID() + "-instructions.txt");
                     }
+                    commonStore.getDataHistory();
                 })
                 .catch(error => {
                     console.log(error);

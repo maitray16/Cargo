@@ -127,8 +127,7 @@ def export_data():
         _source=fields,
         body=json.loads(query))
 
-    result_dataframe = scroll_data(
-        es_connection=es, es_hosts=host, es_timeout=60, search_args=args)
+    result_dataframe = scroll_data(es_connection=es, es_hosts=host, es_timeout=60, search_args=args)
 
     uid = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)for _ in range(6))
     
