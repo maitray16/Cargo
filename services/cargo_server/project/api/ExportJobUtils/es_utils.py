@@ -2,12 +2,13 @@ import itertools
 import pandas as pd
 import elasticsearch
 
+
 def extract_data(data, write_headers):
     for key, group in itertools.groupby(data, key=lambda x: x['_index']):
         rows = [datumn['_source'] for datumn in list(group)]
         df = pd.DataFrame.from_dict(rows)
         return df
-       
+
 
 def get_data_page(page):
     data = page['hits']['hits']
@@ -23,7 +24,8 @@ def scroll_data(es_connection, es_hosts, es_timeout, search_args):
     dataFrame = pd.DataFrame()
     headers_written = False
     if data:
-        dataFrame = dataFrame.append(extract_data(data=data, write_headers=(not headers_written)))
+        dataFrame = dataFrame.append(
+            extract_data(data=data, write_headers=(not headers_written)))
         headers_written = True
     while True:
         page = es.scroll(scroll_id=sid, scroll='{}m'.format(es_timeout))
