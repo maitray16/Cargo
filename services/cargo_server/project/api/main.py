@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, g, send_file, make_response
 from elasticsearch import Elasticsearch, ConnectionError
-from project.api.es_utils import scroll_data
+from project.api.ExportJobUtils.es_utils import scroll_data
 from pymongo import MongoClient
 from bson import json_util
 import pandas as pd
@@ -118,6 +118,10 @@ def export_data():
     query = data.get("query")
     fields = data.get("fields")
     export_type = data.get("type")
+
+    #1 Get elastic connection
+    #2 Get result dataframe
+    #3 Export type 
     es = _get_connection(host)
 
     args = dict(
@@ -127,16 +131,20 @@ def export_data():
         _source=fields,
         body=json.loads(query))
 
-    result_dataframe = scroll_data(es_connection=es, es_hosts=host, es_timeout=60, search_args=args)
+    result_dataframe = scroll_data(
+        es_connection=es, es_hosts=host, es_timeout=60, search_args=args)
 
-    uid = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)for _ in range(6))
-    
+    uid = ''.join(
+        random.SystemRandom().choice(string.ascii_uppercase +
+                                     string.ascii_lowercase + string.digits)
+        for _ in range(6))
+
     client.history.insert_one(data)
 
     if export_type == 'csv':
         response = make_response(result_dataframe.to_csv())
-        # cd = 'attachment; filename=response.csv'
-        response.headers['Content-Disposition'] = 'attachment; filename='+uid+'.csv'
+        response.headers[
+            'Content-Disposition'] = 'attachment; filename=' + uid + '.csv'
         response.mimetype = 'text/csv'
         return response
 
@@ -164,5 +172,11 @@ def ping():
 def get_audit():
     output = []
     for q in client.history.find({}):
-        output.append({'host': q['host'], 'index': q['index'], 'fields': q['fields'], 'type': q['type'], 'query': q['query']})
+        output.append({
+            'host': q['host'],
+            'index': q['index'],
+            'fields': q['fields'],
+            'type': q['type'],
+            'query': q['query']
+        })
     return jsonify({'status': 'success', 'data': output})
