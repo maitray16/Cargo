@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, g, send_file, make_response
 from elasticsearch import Elasticsearch, ConnectionError
 from project.api.ExportJobUtils.es_utils import scroll_data
+from project.api.ExportJobUtils.get_data_from_es import ESGetData 
 from pymongo import MongoClient
 from bson import json_util
 import pandas as pd
@@ -8,6 +9,7 @@ import itertools
 import random
 import string
 import json
+import os
 
 main_blueprint = Blueprint('main', __name__)
 client = MongoClient('192.168.99.100', 27017).cargo
@@ -123,6 +125,7 @@ def export_data():
     #2 Get result dataframe
     #3 Export type 
     es = _get_connection(host)
+    # e = ESGetData(data, es)
 
     args = dict(
         index=index,

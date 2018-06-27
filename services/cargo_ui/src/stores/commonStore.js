@@ -1,5 +1,4 @@
 import { observable, action } from "mobx";
-import mainStore from './mainStore';
 import {get} from '../utils/apiUtils';
 
 class CommonStore {

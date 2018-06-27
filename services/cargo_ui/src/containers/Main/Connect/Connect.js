@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import { Button, Card, CardBody, Col, Container, Input, InputGroup, Row } from 'reactstrap';
-import logo from '../../../assets/img/package-white.png';
 
 @inject('mainStore')
 @observer
@@ -25,8 +24,10 @@ export default class Connect extends Component{
                 <CardBody className="text-center">
                     <div style={{background:'#b2bec3' }}>
                         <Container fluid>
-                        <img className="mb-3"src={logo} height="65" width="65" alt="Logo"></img>
-                        <h1>Cargo</h1>
+                            <h1 className="display-4">Cargo</h1>
+                            <hr className="my-2" />
+                            <p className="lead">Bulk data export tool</p>
+                    
                         </Container>
                     </div>
                 </CardBody>
