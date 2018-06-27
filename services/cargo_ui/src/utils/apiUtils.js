@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_ROOT = 'http://192.168.99.100/cargo';
+const API_ROOT = 'http://localhost/cargo';
 
 
 export const get = (path) => {
