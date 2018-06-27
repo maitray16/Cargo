@@ -7751,7 +7751,7 @@ canvas {
   height: 55px;
   padding: 0;
   margin: 0;
-  background-color: #fff;
+  background-color: #1e272e;
   border-bottom: 1px solid #c8ced3; }
   .app-header .navbar-brand {
     display: inline-flex;
@@ -9251,7 +9251,7 @@ html[dir="rtl"] .aside-menu-show .aside-menu {
       content: "";
       background: rgba(0, 0, 0, 0.7);
       animation: opacity 0.25s; } }
-
+      
 .footer-fixed .app-footer {
   position: fixed;
   right: 0;
@@ -9282,7 +9282,7 @@ html[dir="rtl"] .aside-menu-show .aside-menu {
     z-index: 1020;
     width: 100%;
     text-align: center;
-    background-color: #fff; }
+    background-color: #1e272e; }
     .app-header .navbar-toggler {
       color: #fff; }
     .app-header .navbar-brand {

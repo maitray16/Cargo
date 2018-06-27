@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import {AppSidebar, AppSidebarForm, AppSidebarHeader, AppSidebarNav } from '@coreui/react';
+import DefaultHeader from './DefaultHeader';
+import {AppHeader, AppSidebar, AppSidebarForm, AppSidebarHeader, AppSidebarNav } from '@coreui/react';
 import navigation from '../../../utils/_nav';
 
 const appSidebarColor = '#1e272e';
