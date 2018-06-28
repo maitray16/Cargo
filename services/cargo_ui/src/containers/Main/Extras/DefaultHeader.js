@@ -27,8 +27,8 @@ class DefaultHeader extends Component {
             </DropdownToggle>
             <DropdownMenu right style={{ right: 'auto' }}>
               <DropdownItem header tag="div" className="text-center"><strong>Settings</strong></DropdownItem>
-              <DropdownItem><i className="icon-rocket"></i><a target="_blank" rel="noopener" href="http://192.168.99.100:8080/"> Monitoring</a></DropdownItem>
-              <DropdownItem><i className="icon-docs"></i><a target="_blank" rel="noopener" href="http://192.168.99.100/swagger"> Docs</a></DropdownItem>
+              <DropdownItem><i className="icon-rocket"></i><a target="_blank" rel="noopener" href="http://localhost:8080/"> Monitoring</a></DropdownItem>
+              <DropdownItem><i className="icon-docs"></i><a target="_blank" rel="noopener" href="http://localhost/swagger"> Docs</a></DropdownItem>
               <DropdownItem><i className="icon-social-github"></i><a target="_blank" rel="noopener" href="https://github.com/maitray16/Cargo"> Github</a></DropdownItem>
             </DropdownMenu>
           </AppHeaderDropdown>

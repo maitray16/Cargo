@@ -12,7 +12,7 @@ import json
 import os
 
 main_blueprint = Blueprint('main', __name__)
-client = MongoClient('192.168.99.100', 27017).cargo
+client = MongoClient('cargo_mongo_db', 27017).cargo
 
 
 def _get_connection(host):
@@ -156,7 +156,7 @@ def export_data():
         client.uid.remove()
         client.uid.insert(data_json)
 
-        data_string = "Database URL - 192.168.99.100" + '\n' + "Port - 27017" + '\n' + "Collection Name : " + uid + '\n' + "Fields - " + str(
+        data_string = "Database URL - cargo_mongo_db" + '\n' + "Port - 27017" + '\n' + "Collection Name : " + uid + '\n' + "Fields - " + str(
             list(result_dataframe))
 
         response = make_response(data_string)
