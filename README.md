@@ -1,10 +1,11 @@
 ![cargo](https://github.com/maitray16/Cargo/blob/master/screenshots/package-96.png)
 
 # Cargo (In Development)
-> Cargo makes it easy to export large amounts of data from elasticsearch into a CSV or a MongoDb Collection. It uses Elasticsearch's Scroll API for bulk export. It enables engineers with the training data for ML/AI tools in an instant. 
+> Cargo makes it easy to export large amounts of data from elasticsearch into a CSV or a MongoDB Collection. It uses Elasticsearch's Scroll API for bulk export. It enables engineers with the training data for ML/AI tools and algorithms in an instant. 
 
 ![cargo](https://github.com/maitray16/Cargo/blob/master/screenshots/screen1.png)
 
 ## TODO
++ Test Case and Error Handling
 + Enable Data Obfuscation 
 + Parallelize time range queries in case of shard_count = 1
