@@ -9,3 +9,4 @@
 + Test Case and Error Handling
 + Enable Data Obfuscation 
 + Parallelize time range queries in case of shard_count = 1
++ More /export types
