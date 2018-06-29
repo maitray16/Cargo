@@ -16,4 +16,4 @@ COPY ./requirements.txt /usr/src/app/requirements.txt
 # install requirements
 RUN pip install -r requirements.txt
 
-CMD gunicorn -b 0.0.0.0:5000 manage:app workers=9
+CMD gunicorn -b 0.0.0.0:5000 -k gevent manage:app workers=5

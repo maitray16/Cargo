@@ -22,9 +22,9 @@ class App extends Component {
       <Provider {...stores}>
         <BrowserRouter>
           <Switch>
-            <Route exact path="/" name="Main" component={Main} />{" "}
-          </Switch>{" "}
-        </BrowserRouter>{" "}
+            <Route exact path="/" name="Main" component={Main} />
+          </Switch>
+        </BrowserRouter>
       </Provider>
     );
   }

@@ -1,19 +1,4 @@
 @charset "UTF-8";
-/*!
- * CoreUI - Open Source Dashboard UI Kit
- * @version v2.0.1
- * @link https://coreui.io
- * Copyright (c) 2018 creativeLabs Łukasz Holeczek
- * Licensed under MIT (https://coreui.io/license)
- */
-
-/*!
- * Bootstrap v4.1.1 (https://getbootstrap.com/)
- * Copyright 2011-2018 The Bootstrap Authors
- * Copyright 2011-2018 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- */
-
 :root {
   --blue: #20a8d8;
   --indigo: #6610f2;
@@ -95,7 +80,7 @@ body {
   line-height: 1.5;
   color: #23282c;
   text-align: left;
-  background-color: #e4e5e6;
+  background-color: #e4e7ec;
 }
 
 [tabindex="-1"]:focus {
