@@ -1,22 +1,23 @@
 import { observable, action } from "mobx";
-import {get} from '../utils/apiUtils';
+import { get } from "../utils/apiUtils";
 
 class CommonStore {
+  @observable history = [];
 
-  @observable history  = [];
-
-  @observable snackMessage = {
+  @observable
+  snackMessage = {
     message: null,
     title: null,
     level: null,
     position: null
   };
 
-  setSnackError = (message,title) => {
-    this.setSnackMessage(message, title , "error" , "tr");
+  setSnackError = (message, title) => {
+    this.setSnackMessage(message, title, "error", "tr");
   };
 
-  @action setSnackMessage(
+  @action
+  setSnackMessage(
     message = null,
     title = null,
     level = "success",
@@ -30,16 +31,16 @@ class CommonStore {
     };
   }
 
-  @action getDataHistory(){
-    get('/history')
-    .then(response => {
+  @action
+  getDataHistory() {
+    get("/history")
+      .then(response => {
         this.history = response.data.data;
-    })
-    .catch((err) => {
+      })
+      .catch(err => {
         throw err;
-    })
+      });
   }
-
 }
 
 export default new CommonStore();
