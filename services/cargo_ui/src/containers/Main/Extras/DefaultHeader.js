@@ -22,25 +22,29 @@ class DefaultHeader extends Component {
 
         <Nav className="ml-auto">
           <AppHeaderDropdown direction="down">
-            <DropdownToggle nav>
-              <i className="icon-wrench" />
+            <DropdownToggle color="success" nav>
+              <i style={{ color: "#30a64a" }} className="icon-wrench" />
             </DropdownToggle>
             <DropdownMenu right style={{ right: "auto" }}>
-              <DropdownItem header tag="div" className="text-center">
+              <DropdownItem header tag="div" className="dtext-center">
                 <strong>Settings</strong>
               </DropdownItem>
               <DropdownItem>
-                <i className="icon-rocket" />
-                <a target="_blank" rel="noopener" href="http://localhost:8080/">
+                <i style={{ color: "#157efb" }} className="icon-rocket" />
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="http://localhost:8080/"
+                >
                   {" "}
                   Monitoring
                 </a>
               </DropdownItem>
               <DropdownItem>
-                <i className="icon-docs" />
+                <i style={{ color: "#157efb" }} className="icon-docs" />
                 <a
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   href="http://localhost/swagger"
                 >
                   {" "}
@@ -48,10 +52,13 @@ class DefaultHeader extends Component {
                 </a>
               </DropdownItem>
               <DropdownItem>
-                <i className="icon-social-github" />
+                <i
+                  style={{ color: "#157efb" }}
+                  className="icon-social-github"
+                />
                 <a
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   href="https://github.com/maitray16/Cargo"
                 >
                   {" "}
