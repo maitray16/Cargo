@@ -30,38 +30,22 @@ class DefaultHeader extends Component {
                 <strong>Settings</strong>
               </DropdownItem>
               <DropdownItem>
-                <i style={{ color: "#157efb" }} className="icon-rocket" />
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href="http://localhost:8080/"
-                >
-                  {" "}
-                  Monitoring
-                </a>
-              </DropdownItem>
-              <DropdownItem>
-                <i style={{ color: "#157efb" }} className="icon-docs" />
+                <i className="icon-docs" />
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
                   href="http://localhost/swagger"
                 >
-                  {" "}
                   Docs
                 </a>
               </DropdownItem>
               <DropdownItem>
-                <i
-                  style={{ color: "#157efb" }}
-                  className="icon-social-github"
-                />
+                <i className="icon-social-github" />
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
                   href="https://github.com/maitray16/Cargo"
                 >
-                  {" "}
                   Github
                 </a>
               </DropdownItem>

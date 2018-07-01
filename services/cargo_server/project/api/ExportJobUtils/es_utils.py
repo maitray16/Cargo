@@ -10,6 +10,15 @@ def extract_data(data, write_headers):
         return df
 
 
+def add_slice_if_needed(total_worker_count, search_args, worker_id):
+    if total_worker_count > 1:
+        search_args['body']['slice'] = {
+            'id': worker_id,
+            'max': total_worker_count
+        }
+    return search_args
+
+
 def get_data_page(page):
     data = page['hits']['hits']
     sid = page['_scroll_id']
