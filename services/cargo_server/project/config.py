@@ -1,17 +1,22 @@
 import os
+
+
 class BaseConfig:
-    """Base Configuration"""
+    """Base Config"""
     TESTING = False
     SECRET_KEY = 'mysecret'
 
+
 class DevelopmentConfig(BaseConfig):
-    """Development Configuration"""
+    """Development Config"""
     pass
 
+
 class TestingConfig(BaseConfig):
-    """Testing Configuration"""
+    """Testing Config"""
     TESTING = True
 
+
 class ProductionConfig(BaseConfig):
-    """Production Configuration"""
+    """Production Config"""
     pass
