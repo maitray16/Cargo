@@ -1,9 +1,8 @@
 import itertools
 import pandas as pd
-import elasticsearch
 
 
-def extract_data(data, write_headers):
+def extract_data(data):
     for key, group in itertools.groupby(data, key=lambda x: x['_index']):
         rows = [datumn['_source'] for datumn in list(group)]
         df = pd.DataFrame.from_dict(rows)
@@ -25,24 +24,21 @@ def get_data_page(page):
     return data, sid
 
 
-def scroll_data(es_connection, es_hosts, es_timeout, search_args):
+def scroll_data(worker_id, total_worker_count, es_connection, es_hosts,
+                es_timeout, search_args):
     es = es_connection
+    search_args = add_slice_if_needed(total_worker_count, search_args,
+                                      worker_id)
     page = es.search(**search_args)
     data, sid = get_data_page(page)
-    total_hits = page['hits']['total']
     dataFrame = pd.DataFrame()
-    headers_written = False
+    result = {}
     if data:
-        dataFrame = dataFrame.append(
-            extract_data(data=data, write_headers=(not headers_written)))
-        headers_written = True
+        dataFrame = dataFrame.append(extract_data(data=data))
     while True:
         page = es.scroll(scroll_id=sid, scroll='{}m'.format(es_timeout))
         data, sid = get_data_page(page)
         if data:
-            dataFrame = dataFrame.append(
-                extract_data(data=data, write_headers=(not headers_written)))
-            headers_written = True
+            dataFrame = dataFrame.append(extract_data(data=data))
         else:
             return dataFrame
-            break

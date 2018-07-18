@@ -12,15 +12,15 @@ COVERAGE = coverage.coverage(
     omit=[
         'project/tests/*',
         'project/config.py',
-    ]
-)
+    ])
 COVERAGE.start()
 
 
 @cli.command()
 def test():
     """Run Tests without coverage"""
-    tests = unittest.TestLoader().discover('./project/tests', pattern='test*.py')
+    tests = unittest.TestLoader().discover(
+        './project/tests', pattern='test*.py')
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
         return 0
@@ -43,4 +43,3 @@ def cov():
 
 if __name__ == '__main__':
     cli()
-

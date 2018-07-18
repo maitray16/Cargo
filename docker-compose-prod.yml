@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3'
 
 services:
 
@@ -58,3 +58,4 @@ services:
     container_name: cargo_mongo_db
     ports:
      - "27017:27017"
+  

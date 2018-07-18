@@ -1,19 +1,19 @@
-FROM python:3.6.5
+# base image
+FROM python:3.6.5-slim
 
-# install environment dependencies
-RUN apt-get update -yqq \
-  && apt-get install -yqq --no-install-recommends \
-    netcat \
-  && apt-get -q clean
+# install netcat
+RUN apt-get update && \
+    apt-get -y install netcat && \
+    apt-get clean
 
 # set working directory
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-# add requirements
+# add and install requirements
 COPY ./requirements.txt /usr/src/app/requirements.txt
-
-# install requirements
 RUN pip install -r requirements.txt
 
-CMD gunicorn -b 0.0.0.0:5000 -k gevent manage:app workers=9
+# add app
+COPY . /usr/src/app
+
+CMD gunicorn -b 0.0.0.0:5000 -k gevent manage:app workers=5

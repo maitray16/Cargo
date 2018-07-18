@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request, g, send_file, make_response
-from elasticsearch import Elasticsearch, ConnectionError
+from flask import current_app, Blueprint, jsonify, request, g, send_file, make_response
+from elasticsearch import Elasticsearch
 from project.api.ExportJobUtils.es_utils import scroll_data
+from project.api.ExportJobUtils.thread_wrapper import ThreadWrapper
 from pymongo import MongoClient
 from bson import json_util
 import pandas as pd
@@ -75,8 +76,7 @@ def get_doc_count():
     query = data.get("query")
     try:
         es = _get_connection(host)
-        #handling query syntax failures from elasticsearch and passing along to client
-        count = es.count(index=index, body={"query": {"match_all": {}}})
+        count = es.count(index=index, body=json.loads(query))
         response_object['status'] = 'success'
         response_object['data'] = count['count']
         return jsonify(response_object), 200
@@ -121,15 +121,26 @@ def export_data():
     export_type = data.get("type")
     es = _get_connection(host)
 
-    args = dict(
-        index=index,
-        scroll='60s',
-        size=10000,
-        _source=fields,
-        body=json.loads(query))
+    worker = ThreadWrapper(5)
 
-    result_dataframe = scroll_data(
-        es_connection=es, es_hosts=host, es_timeout=60, search_args=args)
+    for i in range(5):
+        args = dict(
+            index=index,
+            scroll='60s',
+            size=1000,
+            _source=fields,
+            body=json.loads(query))
+
+        worker.add_job_to_worker(
+            scroll_data,
+            worker_id=i,
+            total_worker_count=5,
+            es_connection=es,
+            es_hosts=host,
+            es_timeout=60,
+            search_args=args)
+
+    result_dataframe = worker.get_job_results()
 
     uid = ''.join(
         random.SystemRandom().choice(string.ascii_uppercase +

@@ -106,7 +106,8 @@ class MainStore {
       this.countText = "Cruncing numbers";
       post("/doc_count", {
         host: this.host,
-        index: this.indexValue
+        index: this.indexValue,
+        query: this.editorString
       })
         .then(response => {
           this.countText = "Doc Count = " + response.data.data;

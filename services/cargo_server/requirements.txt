@@ -8,3 +8,4 @@ elasticsearch
 pandas
 pymongo
 gevent
+flask-cors

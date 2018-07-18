@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
+import { debounce } from "lodash";
 import {
   Button,
   Card,
@@ -61,7 +62,10 @@ export default class Connect extends Component {
                 <Row>
                   <Col xs="12">
                     <Button
-                      onClick={() => this.props.mainStore.connect()}
+                      onClick={debounce(
+                        () => this.props.mainStore.connect(),
+                        500
+                      )}
                       size="md"
                       color="primary"
                       className="px-3"

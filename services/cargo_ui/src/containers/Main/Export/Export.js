@@ -329,7 +329,7 @@ export default class Export extends Component {
               <ReactLoading
                 className="float-right"
                 type={"bars"}
-                color={"#157efb"}
+                color={"#27ae60"}
                 height={42}
                 width={42}
               />

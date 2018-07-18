@@ -1,6 +1,3 @@
-import os
-
-
 class BaseConfig:
     """Base Config"""
     TESTING = False
@@ -9,14 +6,16 @@ class BaseConfig:
 
 class DevelopmentConfig(BaseConfig):
     """Development Config"""
-    pass
+    # MONGO_CARGO_DATABASE_URI = os.environ.get('DATABASE_URL')
+    MONGO_CARGO_DATABASE_URI = 'cargo_mongo_db:27017'
 
 
 class TestingConfig(BaseConfig):
     """Testing Config"""
+    MONGO_CARGO_DATABASE_URI = 'cargo_mongo_db:27017'
     TESTING = True
 
 
 class ProductionConfig(BaseConfig):
     """Production Config"""
-    pass
+    MONGO_CARGO_DATABASE_URI = 'cargo_mongo_db:27017'

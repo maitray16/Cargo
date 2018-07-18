@@ -1,11 +1,11 @@
-from concurrent.futures import ProcessPoolExecutor, wait
+from concurrent.futures import ThreadPoolExecutor, wait
 import pandas as pd
 
 
-class AsyncWrapper(object):
+class ThreadWrapper(object):
     def __init__(self, num_workers, num_jobs=None):
         self.num_workers = num_workers
-        self._executor = ProcessPoolExecutor(max_workers=self.num_workers)
+        self._executor = ThreadPoolExecutor(max_workers=self.num_workers)
         self._futures = []
 
     def add_job_to_worker(self, worker_callback, **args):
